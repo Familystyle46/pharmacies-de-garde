@@ -11,7 +11,12 @@ export function SearchBar() {
     e.preventDefault();
     const q = inputRef.current?.value?.trim();
     if (!q) return;
-    const slug = q.toLowerCase().replace(/\s+/g, "-").normalize("NFD").replace(/\p{Diacritic}/gu, "");
+    const slug = q
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
     router.push(`/pharmacie-de-garde/${slug}`);
   }
 
