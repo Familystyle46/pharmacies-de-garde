@@ -88,3 +88,8 @@ export async function getVilleBySlug(villeSlug: string): Promise<{ nom: string; 
   const villes = await getVilles();
   return villes.find((v) => v.slug === villeSlug) ?? null;
 }
+
+export async function getAllVillesSlugs(): Promise<string[]> {
+  const villes = await getVilles();
+  return villes.map((v) => v.slug);
+}

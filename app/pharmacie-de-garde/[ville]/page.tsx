@@ -4,7 +4,7 @@ import {
   getPharmaciesByVille,
   getVilleBySlug,
   getDepartementsByVille,
-  getVilles,
+  getAllVillesSlugs,
 } from "@/lib/pharmacies";
 import { PharmacyCard } from "@/components/PharmacyCard";
 import { MapView } from "@/components/MapView";
@@ -29,11 +29,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export async function generateStaticParams() {
-  const villes = await getVilles();
-  if (villes.length === 0) {
+  const slugs = await getAllVillesSlugs();
+  const filtered = slugs
+    .filter((slug) => slug && slug.trim() !== "")
+    .slice(0, 50);
+  if (filtered.length === 0) {
     return [{ ville: "paris" }, { ville: "lyon" }, { ville: "marseille" }];
   }
-  return villes.slice(0, 50).map((v) => ({ ville: v.slug }));
+  return filtered.map((slug) => ({ ville: slug }));
 }
 
 export default async function VillePage({ params }: PageProps) {
