@@ -30,12 +30,17 @@ export async function getVilles(): Promise<Ville[]> {
 
   const byVille = new Map<string, { nom: string; departement: string; count: number }>();
   for (const row of data ?? []) {
-    const key = (row.ville as string).toLowerCase().replace(/\s+/g, "-");
+    const ville = String(row.ville || "").trim();
+    if (!ville) continue;
+    const key = ville.toLowerCase().replace(/\s+/g, "-");
+    if (!key || key === "-") continue;
     const existing = byVille.get(key);
     if (existing) existing.count++;
-    else byVille.set(key, { nom: row.ville as string, departement: row.departement as string, count: 1 });
+    else byVille.set(key, { nom: ville, departement: (row.departement as string) || "", count: 1 });
   }
-  return Array.from(byVille.entries()).map(([slug, v]) => ({ slug, nom: v.nom, departement: v.departement, count: v.count }));
+  return Array.from(byVille.entries())
+    .filter(([slug]) => slug && slug.length > 0)
+    .map(([slug, v]) => ({ slug, nom: v.nom, departement: v.departement, count: v.count }));
 }
 
 export async function getPharmaciesByVille(villeSlug: string): Promise<Pharmacie[]> {
