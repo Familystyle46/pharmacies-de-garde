@@ -1,7 +1,11 @@
+import Link from "next/link";
 import type { Pharmacie } from "@/lib/pharmacies";
 
 interface PharmacieCardProps {
   pharmacie: Pharmacie;
+  /** Si fournis, le nom devient un lien vers la page pharmacie */
+  villeSlug?: string;
+  pharmacieSlug?: string;
 }
 
 function mapsUrl(pharmacie: Pharmacie): string {
@@ -11,15 +15,27 @@ function mapsUrl(pharmacie: Pharmacie): string {
   return `https://www.google.com/maps/search/?api=1&query=${addr}`;
 }
 
-export function PharmacieCard({ pharmacie }: PharmacieCardProps) {
+export function PharmacieCard({ pharmacie, villeSlug, pharmacieSlug }: PharmacieCardProps) {
   const tel = pharmacie.telephone?.replace(/\s/g, "") ?? "";
   const hasHoraires = Boolean(pharmacie.horaires?.trim());
+  const hasLink = Boolean(villeSlug && pharmacieSlug);
 
   return (
     <article className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary hover:shadow-md">
       <div className="flex justify-between items-start gap-3">
         <div className="flex-1 min-w-0">
-          <h3 className="text-base font-bold text-gray-900 mb-2">{pharmacie.nom}</h3>
+          <h3 className="text-base font-bold text-gray-900 mb-2">
+            {hasLink ? (
+              <Link
+                href={`/pharmacie-de-garde/${villeSlug}/${pharmacieSlug}`}
+                className="hover:text-primary hover:underline"
+              >
+                {pharmacie.nom}
+              </Link>
+            ) : (
+              pharmacie.nom
+            )}
+          </h3>
           <div className="flex items-start gap-2 text-sm text-gray-600 mb-2">
             <svg
               className="w-4 h-4 flex-shrink-0 mt-0.5 text-gray-400"

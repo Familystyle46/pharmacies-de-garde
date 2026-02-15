@@ -30,6 +30,23 @@ function toVilleSlug(ville: string): string {
     .replace(/[^a-z0-9-]/g, "");
 }
 
+/** Slug pour une pharmacie (nom → URL) */
+function toPharmacieSlug(nom: string): string {
+  return String(nom || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    || "pharmacie";
+}
+
+/** Retourne le slug URL d'une pharmacie à partir de son nom (export pour pages/cards). */
+export function getPharmacieSlug(nom: string): string {
+  return toPharmacieSlug(nom);
+}
+
 export async function getVilles(): Promise<Ville[]> {
   const { data, error } = await supabase
     .from("pharmacies")
@@ -250,4 +267,50 @@ export async function getTopDepartementsCodes(): Promise<string[]> {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 20)
     .map(([code]) => code);
+}
+
+/** Une pharmacie par slug ville + slug pharmacie (nom slugifié). */
+export async function getPharmacieBySlug(
+  villeSlug: string,
+  pharmacieSlug: string
+): Promise<Pharmacie | null> {
+  const info = await getVilleBySlug(villeSlug);
+  const villeNom = info?.nom ?? villeSlug.replace(/-/g, " ");
+  const pharmacies = await getPharmaciesByVille(villeSlug);
+  const found = pharmacies.find((p) => toPharmacieSlug(p.nom) === pharmacieSlug) ?? null;
+  return found;
+}
+
+export interface PharmacieSlugPair {
+  ville_slug: string;
+  pharmacie_slug: string;
+}
+
+/** Paires (ville_slug, pharmacie_slug) pour generateStaticParams, limit 1000. */
+export async function getAllPharmaciesSlugs(): Promise<PharmacieSlugPair[]> {
+  const { data, error } = await supabase
+    .from("pharmacies")
+    .select("ville, nom")
+    .not("ville", "is", null)
+    .not("nom", "is", null)
+    .limit(2000);
+
+  if (error) return [];
+
+  const seen = new Set<string>();
+  const pairs: PharmacieSlugPair[] = [];
+  for (const row of data ?? []) {
+    const ville = String(row.ville || "").trim();
+    const nom = String(row.nom || "").trim();
+    if (!ville || !nom) continue;
+    const vSlug = toVilleSlug(ville);
+    const pSlug = toPharmacieSlug(nom);
+    if (!vSlug || !pSlug) continue;
+    const key = `${vSlug}|${pSlug}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    pairs.push({ ville_slug: vSlug, pharmacie_slug: pSlug });
+    if (pairs.length >= 1000) break;
+  }
+  return pairs;
 }

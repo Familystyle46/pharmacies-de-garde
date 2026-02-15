@@ -6,6 +6,7 @@ import {
   getDepartementsByVille,
   getAllVillesSlugs,
   getVillesProches,
+  getPharmacieSlug,
 } from "@/lib/pharmacies";
 import { getDepartementByCode } from "@/lib/departements";
 import type { Pharmacie } from "@/lib/pharmacies";
@@ -187,7 +188,12 @@ export default async function VillePage({ params }: PageProps) {
             {pharmacies.length > 0 ? (
               <div className="space-y-4">
                 {pharmacies.map((p) => (
-                  <PharmacieCard key={p.id} pharmacie={p} />
+                  <PharmacieCard
+                    key={p.id}
+                    pharmacie={p}
+                    villeSlug={ville}
+                    pharmacieSlug={getPharmacieSlug(p.nom)}
+                  />
                 ))}
               </div>
             ) : (
