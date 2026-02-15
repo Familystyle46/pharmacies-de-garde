@@ -4,7 +4,7 @@ import {
   getPharmaciesByVilleEtDepartement,
   getVilleBySlug,
 } from "@/lib/pharmacies";
-import { PharmacyCard } from "@/components/PharmacyCard";
+import { PharmacieCard } from "@/components/PharmacieCard";
 import { MapView } from "@/components/MapView";
 
 interface PageProps {
@@ -62,7 +62,7 @@ export default async function DepartementPage({ params }: PageProps) {
           <h2 className="mb-4 text-xl font-semibold text-gray-900">Liste des pharmacies</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {pharmacies.map((p) => (
-              <PharmacyCard key={p.id} pharmacie={p} />
+              <PharmacieCard key={p.id} pharmacie={p} />
             ))}
           </div>
         </section>
