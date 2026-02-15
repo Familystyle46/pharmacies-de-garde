@@ -29,11 +29,15 @@ export default function LeafletMap({ points, center, zoom }: LeafletMapProps) {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
+    // Croix médicale verte (marker personnalisé)
     const icon = L.divIcon({
-      className: "custom-marker",
-      html: `<span style="background:#16a34a;width:12px;height:12px;border-radius:50%;display:block;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3)"></span>`,
-      iconSize: [12, 12],
-      iconAnchor: [6, 6],
+      className: "custom-marker medical-cross",
+      html: `<svg width="24" height="24" viewBox="0 0 24 24" fill="#16a34a" stroke="white" stroke-width="2" stroke-linecap="round">
+        <rect x="10" y="4" width="4" height="16" rx="1"/>
+        <rect x="4" y="10" width="16" height="4" rx="1"/>
+      </svg>`,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
     });
 
     for (const p of points) {

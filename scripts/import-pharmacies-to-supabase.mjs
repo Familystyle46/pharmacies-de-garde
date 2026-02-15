@@ -25,17 +25,51 @@ proj4.defs(
   "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
 );
 
+// Web Mercator (EPSG:3857) -> WGS84 - utilisé par OSM pour certains points
+proj4.defs(
+  "EPSG:3857",
+  "+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs"
+);
+
 function lambert93ToWgs84(x, y) {
   const [lng, lat] = proj4("EPSG:2154", "EPSG:4326", [Number(x), Number(y)]);
   return { lat, lng };
 }
 
-function parseGeom(geomStr) {
+function webMercatorToWgs84(x, y) {
+  const [lng, lat] = proj4("EPSG:3857", "EPSG:4326", [Number(x), Number(y)]);
+  return { lat, lng };
+}
+
+/** Vérifie si (lon, lat) est en France métropolitaine */
+function isInFrance(lng, lat) {
+  return lng >= -6 && lng <= 11 && lat >= 41 && lat <= 52;
+}
+
+/**
+ * Détecte le système de coordonnées et convertit en WGS84.
+ * Les données OSM utilisent souvent Web Mercator (EPSG:3857).
+ * Certaines sources françaises utilisent Lambert 93 (EPSG:2154).
+ */
+function parseGeom(geomStr, osmOriginalGeom) {
   if (!geomStr || !geomStr.startsWith("POINT")) return null;
   const match = geomStr.match(/POINT\s*\(\s*([\d.-]+)\s+([\d.-]+)\s*\)/);
   if (!match) return null;
+  const x = Number(match[1]);
+  const y = Number(match[2]);
   try {
-    return lambert93ToWgs84(match[1], match[2]);
+    // SRID=3857 explicite → Web Mercator
+    if (osmOriginalGeom && String(osmOriginalGeom).includes("SRID=3857")) {
+      return webMercatorToWgs84(x, y);
+    }
+    // Essayer Web Mercator d'abord (format standard OSM)
+    const wm = webMercatorToWgs84(x, y);
+    if (isInFrance(wm.lng, wm.lat)) return wm;
+    // Sinon essayer Lambert 93
+    const lm = lambert93ToWgs84(x, y);
+    if (isInFrance(lm.lng, lm.lat)) return lm;
+    // Par défaut Web Mercator (le plus courant pour OSM)
+    return wm;
   } catch {
     return null;
   }
@@ -107,7 +141,7 @@ async function main() {
     const name = row.name?.trim() || row["short_name"]?.trim() || "Pharmacie";
     const codePostal = row["addr-postcode"]?.trim() ?? "";
     const ville = row["addr-city"]?.trim() ?? "";
-    const geom = parseGeom(row.the_geom);
+    const geom = parseGeom(row.the_geom, row.osm_original_geom);
 
     rows.push({
       id: String(row.osm_id || row.FID || `${name}-${codePostal}-${ville}`).replace(/\s/g, "-"),

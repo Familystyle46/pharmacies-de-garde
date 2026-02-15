@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postbuild": "next-sitemap",
     "import:pharmacies": "node scripts/import-pharmacies-to-supabase.mjs"
   },
   "dependencies": {

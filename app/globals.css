@@ -18,3 +18,13 @@ body {
   @apply bg-white text-gray-900 antialiased;
   font-family: 'DM Sans', 'Segoe UI', sans-serif;
 }
+
+/* Leaflet markers croix médicale */
+.leaflet-marker-icon.custom-marker.medical-cross {
+  background: none !important;
+  border: none !important;
+}
+
+.leaflet-marker-icon.custom-marker.medical-cross svg {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
