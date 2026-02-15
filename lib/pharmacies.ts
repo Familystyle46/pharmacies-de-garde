@@ -71,12 +71,12 @@ export async function getVilles(): Promise<Ville[]> {
 }
 
 export async function getPharmaciesByVille(villeSlug: string): Promise<Pharmacie[]> {
-  const info = await getVilleBySlug(villeSlug);
-  const villeNom = info?.nom ?? villeSlug.replace(/-/g, " ");
+  if (!villeSlug) return [];
+
   const { data, error } = await supabase
     .from("pharmacies")
     .select("*")
-    .eq("ville", villeNom);
+    .eq("ville_slug", villeSlug);
 
   if (error) return [];
   return (data ?? []) as Pharmacie[];
@@ -84,12 +84,13 @@ export async function getPharmaciesByVille(villeSlug: string): Promise<Pharmacie
 
 export async function getPharmaciesByVilleEtDepartement(villeSlug: string, departementSlug: string): Promise<Pharmacie[]> {
   const info = await getVilleBySlug(villeSlug);
-  const villeNom = info?.nom ?? villeSlug.replace(/-/g, " ");
+  const villeNom = (info?.nom ?? villeSlug.replace(/-/g, " ")).trim();
   const dep = departementSlug.replace(/-/g, " ");
+  if (!villeNom) return [];
   const { data, error } = await supabase
     .from("pharmacies")
     .select("*")
-    .eq("ville", villeNom)
+    .ilike("ville", villeNom)
     .or(`departement.eq.${dep},code_postal.like.${dep}%`);
 
   if (error) return [];
@@ -98,11 +99,12 @@ export async function getPharmaciesByVilleEtDepartement(villeSlug: string, depar
 
 export async function getDepartementsByVille(villeSlug: string): Promise<{ slug: string; nom: string; count: number }[]> {
   const info = await getVilleBySlug(villeSlug);
-  const villeNom = info?.nom ?? villeSlug.replace(/-/g, " ");
+  const villeNom = (info?.nom ?? villeSlug.replace(/-/g, " ")).trim();
+  if (!villeNom) return [];
   const { data, error } = await supabase
     .from("pharmacies")
     .select("departement, code_postal")
-    .eq("ville", villeNom);
+    .ilike("ville", villeNom);
 
   if (error) return [];
 
@@ -120,13 +122,31 @@ export async function getDepartementsByVille(villeSlug: string): Promise<{ slug:
 }
 
 export async function getVilleBySlug(villeSlug: string): Promise<{ nom: string; departement: string } | null> {
-  const villes = await getVilles();
-  return villes.find((v) => v.slug === villeSlug) ?? null;
+  const { data, error } = await supabase
+    .from("pharmacies")
+    .select("ville, departement")
+    .eq("ville_slug", villeSlug)
+    .limit(1)
+    .single();
+
+  if (error || !data) return null;
+  return { nom: data.ville as string, departement: (data.departement as string) || "" };
 }
 
 export async function getAllVillesSlugs(): Promise<string[]> {
-  const villes = await getVilles();
-  return villes.map((v) => v.slug);
+  const { data, error } = await supabase
+    .from("pharmacies")
+    .select("ville_slug")
+    .not("ville_slug", "is", null)
+    .neq("ville_slug", "");
+
+  if (error) return [];
+
+  const seen = new Set<string>();
+  for (const row of data ?? []) {
+    if (row.ville_slug) seen.add(row.ville_slug as string);
+  }
+  return Array.from(seen);
 }
 
 export interface VilleSuggestion {
@@ -188,12 +208,13 @@ export async function getVillesProches(
 
   if (error) return [];
 
+  const currentNorm = toVilleSlug(currentSlug) || currentSlug.trim().toLowerCase().replace(/\s+/g, "-");
   const seen = new Map<string, string>();
   for (const row of data ?? []) {
     const ville = String(row.ville || "").trim();
     if (!ville) continue;
     const slug = toVilleSlug(ville);
-    if (!slug || slug === currentSlug || seen.has(slug)) continue;
+    if (!slug || slug === currentNorm || seen.has(slug)) continue;
     seen.set(slug, ville);
   }
   return Array.from(seen.entries())
@@ -274,10 +295,9 @@ export async function getPharmacieBySlug(
   villeSlug: string,
   pharmacieSlug: string
 ): Promise<Pharmacie | null> {
-  const info = await getVilleBySlug(villeSlug);
-  const villeNom = info?.nom ?? villeSlug.replace(/-/g, " ");
   const pharmacies = await getPharmaciesByVille(villeSlug);
-  const found = pharmacies.find((p) => toPharmacieSlug(p.nom) === pharmacieSlug) ?? null;
+  const wantSlug = toPharmacieSlug(pharmacieSlug);
+  const found = pharmacies.find((p) => toPharmacieSlug(p.nom) === wantSlug) ?? null;
   return found;
 }
 

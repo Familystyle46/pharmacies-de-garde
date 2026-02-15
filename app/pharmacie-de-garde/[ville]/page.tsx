@@ -17,6 +17,8 @@ import { VillesProches } from "@/components/VillesProches";
 
 const SITE_URL = "https://pharmacies-de-garde.net";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ ville: string }>;
 }
