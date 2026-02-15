@@ -20,6 +20,16 @@ export interface Ville {
   count: number;
 }
 
+/** Slug sans accents, aligné avec getVillesByDepartement et SearchBar */
+function toVilleSlug(ville: string): string {
+  return ville
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+}
+
 export async function getVilles(): Promise<Ville[]> {
   const { data, error } = await supabase
     .from("pharmacies")
@@ -32,7 +42,7 @@ export async function getVilles(): Promise<Ville[]> {
   for (const row of data ?? []) {
     const ville = String(row.ville || "").trim();
     if (!ville) continue;
-    const key = ville.toLowerCase().replace(/\s+/g, "-");
+    const key = toVilleSlug(ville);
     if (!key || key === "-") continue;
     const existing = byVille.get(key);
     if (existing) existing.count++;
@@ -44,23 +54,25 @@ export async function getVilles(): Promise<Ville[]> {
 }
 
 export async function getPharmaciesByVille(villeSlug: string): Promise<Pharmacie[]> {
-  const villeNom = villeSlug.replace(/-/g, " ");
+  const info = await getVilleBySlug(villeSlug);
+  const villeNom = info?.nom ?? villeSlug.replace(/-/g, " ");
   const { data, error } = await supabase
     .from("pharmacies")
     .select("*")
-    .ilike("ville", villeNom);
+    .eq("ville", villeNom);
 
   if (error) return [];
   return (data ?? []) as Pharmacie[];
 }
 
 export async function getPharmaciesByVilleEtDepartement(villeSlug: string, departementSlug: string): Promise<Pharmacie[]> {
-  const villeNom = villeSlug.replace(/-/g, " ");
+  const info = await getVilleBySlug(villeSlug);
+  const villeNom = info?.nom ?? villeSlug.replace(/-/g, " ");
   const dep = departementSlug.replace(/-/g, " ");
   const { data, error } = await supabase
     .from("pharmacies")
     .select("*")
-    .ilike("ville", villeNom)
+    .eq("ville", villeNom)
     .or(`departement.eq.${dep},code_postal.like.${dep}%`);
 
   if (error) return [];
@@ -68,11 +80,12 @@ export async function getPharmaciesByVilleEtDepartement(villeSlug: string, depar
 }
 
 export async function getDepartementsByVille(villeSlug: string): Promise<{ slug: string; nom: string; count: number }[]> {
-  const villeNom = villeSlug.replace(/-/g, " ");
+  const info = await getVilleBySlug(villeSlug);
+  const villeNom = info?.nom ?? villeSlug.replace(/-/g, " ");
   const { data, error } = await supabase
     .from("pharmacies")
     .select("departement, code_postal")
-    .ilike("ville", villeNom);
+    .eq("ville", villeNom);
 
   if (error) return [];
 
@@ -124,12 +137,7 @@ export async function getVillesSuggestions(query: string): Promise<VilleSuggesti
   for (const row of data ?? []) {
     const ville = String(row.ville || "").trim();
     if (!ville) continue;
-    const slug = ville
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "");
+    const slug = toVilleSlug(ville);
     if (!slug || seen.has(slug)) continue;
     seen.add(slug);
     results.push({
@@ -167,12 +175,7 @@ export async function getVillesProches(
   for (const row of data ?? []) {
     const ville = String(row.ville || "").trim();
     if (!ville) continue;
-    const slug = ville
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "");
+    const slug = toVilleSlug(ville);
     if (!slug || slug === currentSlug || seen.has(slug)) continue;
     seen.set(slug, ville);
   }
@@ -213,12 +216,7 @@ export async function getVillesByDepartement(
     if (!ville) continue;
     const cp = String(row.code_postal || "").trim();
     if (!cp.startsWith(dept) && String(row.departement || "").trim() !== dept) continue;
-    const slug = ville
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "");
+    const slug = toVilleSlug(ville);
     if (!slug) continue;
     const existing = byVille.get(slug);
     if (existing) existing.count++;
