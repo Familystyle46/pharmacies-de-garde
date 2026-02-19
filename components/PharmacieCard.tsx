@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Pharmacie } from "@/lib/pharmacies";
+import { HorairesDisplay } from "@/components/HorairesDisplay";
 
 interface PharmacieCardProps {
   pharmacie: Pharmacie;
@@ -19,6 +20,7 @@ export function PharmacieCard({ pharmacie, villeSlug, pharmacieSlug }: Pharmacie
   const tel = pharmacie.telephone?.replace(/\s/g, "") ?? "";
   const hasHoraires = Boolean(pharmacie.horaires?.trim());
   const hasLink = Boolean(villeSlug && pharmacieSlug);
+  const showOpenNow = true;
 
   return (
     <article className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary hover:shadow-md">
@@ -55,10 +57,7 @@ export function PharmacieCard({ pharmacie, villeSlug, pharmacieSlug }: Pharmacie
             </span>
           </div>
           {hasHoraires && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-primary">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              Ouvert
-            </span>
+            <HorairesDisplay horaires={pharmacie.horaires} showOpenNow={showOpenNow} className="mt-2" />
           )}
         </div>
       </div>

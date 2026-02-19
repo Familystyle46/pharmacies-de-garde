@@ -14,6 +14,7 @@ import type { Pharmacie } from "@/lib/pharmacies";
 import { PharmacieCard } from "@/components/PharmacieCard";
 import { MapView } from "@/components/MapView";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { HorairesDisplay } from "@/components/HorairesDisplay";
 
 const SITE_URL = "https://pharmacies-de-garde.net";
 
@@ -254,11 +255,10 @@ export default async function VilleSegmentPage({ params }: PageProps) {
                     {p.telephone}
                   </a>
                 )}
-                {p.horaires && (
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium text-gray-900">Horaires :</span> {p.horaires}
-                  </p>
-                )}
+                <div className="text-sm">
+                  <span className="font-medium text-gray-900">Horaires :</span>{" "}
+                  <HorairesDisplay horaires={p.horaires} showOpenNow />
+                </div>
               </div>
               {hasMap && (
                 <a

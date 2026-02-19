@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import "./globals.css";
+
+const GA_ID = "G-NXCSM3RCV5";
 
 export const metadata: Metadata = {
   title: {
@@ -24,6 +27,18 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className="min-h-screen flex flex-col">
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}');
+          `}
+        </Script>
         <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-white">
@@ -60,6 +75,7 @@ export default function RootLayout({
                 <h3 className="font-bold text-white mb-4">Liens utiles</h3>
                 <ul className="space-y-2 text-sm">
                   <li><Link href="/" className="text-gray-400 hover:text-white transition-colors">Accueil</Link></li>
+                  <li><Link href="/contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link></li>
                   <li><a href="https://www.ordre.pharmacien.fr" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">Ordre des Pharmaciens</a></li>
                   <li><a href="tel:3237" className="text-gray-400 hover:text-white transition-colors">3237 — Pharmacie de garde</a></li>
                 </ul>
