@@ -52,7 +52,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const nom = p?.nom ?? segment.replace(/-/g, " ");
   const title = `${nom} - Pharmacie de Garde à ${villeNom} | Horaires & Contact`;
   const description = `Pharmacie ${nom} située ${p?.adresse ?? ""}, ${villeNom}. Téléphone, horaires d'ouverture et itinéraire pour la pharmacie de garde.`;
-  return { title, description, openGraph: { title, description } };
+  return {
+    title,
+    description,
+    openGraph: { title, description },
+    alternates: {
+      canonical: `${SITE_URL}/pharmacie-de-garde/${ville}/${segment}`,
+    },
+  };
 }
 
 export async function generateStaticParams() {
@@ -213,11 +220,28 @@ export default async function VilleSegmentPage({ params }: PageProps) {
 
   const hasMap = p.latitude != null && p.longitude != null;
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Accueil", item: `${SITE_URL}/` },
+      ...(departementCode && departementNom
+        ? [{ "@type": "ListItem", position: 2, name: departementNom, item: `${SITE_URL}/departement/${departementCode}` }]
+        : []),
+      { "@type": "ListItem", position: breadcrumbItems.length - 1, name: villeNom, item: `${SITE_URL}/pharmacie-de-garde/${ville}` },
+      { "@type": "ListItem", position: breadcrumbItems.length, name: p.nom, item: `${SITE_URL}/pharmacie-de-garde/${ville}/${segment}` },
+    ],
+  };
+
   return (
     <div className="min-h-screen">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(pharmacyJsonLd(p)) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
       <div className="max-w-7xl mx-auto px-4 py-6">
