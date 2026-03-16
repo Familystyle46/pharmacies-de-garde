@@ -1,6 +1,10 @@
 "use client";
 
-import { formatHoraires, isOpenNow, HORAIRES_INDISPONIBLES } from "@/utils/formatHoraires";
+import {
+  isOpenNow,
+  expandToDailySchedule,
+  HORAIRES_INDISPONIBLES,
+} from "@/utils/formatHoraires";
 
 interface HorairesDisplayProps {
   horaires: string | null | undefined;
@@ -15,10 +19,14 @@ export function HorairesDisplay({
   showOpenNow = false,
   className = "",
 }: HorairesDisplayProps) {
-  const lines = formatHoraires(horaires);
   const openNow = showOpenNow ? isOpenNow(horaires) : null;
+  const schedule = expandToDailySchedule(horaires);
 
-  if (lines.length === 0) {
+  const currentDayCode = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"][
+    new Date().getDay()
+  ];
+
+  if (!schedule) {
     return (
       <p className={`text-sm text-gray-500 ${className}`}>
         <span className="inline-flex items-center gap-1.5">
@@ -30,9 +38,10 @@ export function HorairesDisplay({
   }
 
   return (
-    <div className={`space-y-1 ${className}`}>
+    <div className={`space-y-2 ${className}`}>
+      {/* Badge Ouvert / Fermé */}
       {showOpenNow && openNow !== null && (
-        <div className="mb-2">
+        <div>
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
               openNow
@@ -49,22 +58,38 @@ export function HorairesDisplay({
           </span>
         </div>
       )}
-      <div className="flex items-start gap-1.5 text-sm text-gray-600">
-        <span aria-hidden className="flex-shrink-0 mt-0.5 text-gray-400">
-          🕐
-        </span>
-        <ul className="list-none p-0 m-0 space-y-0.5">
-          {lines.map((line, i) => (
-            <li key={i}>
-              {line.includes("Fermé") ? (
-                <span className="text-red-600 font-medium">{line}</span>
+
+      {/* Planning 7 jours */}
+      <ul className="text-sm space-y-0.5">
+        {schedule.map(({ dayCode, dayFr, hours }) => {
+          const isToday = dayCode === currentDayCode;
+          return (
+            <li
+              key={dayCode}
+              className={`flex justify-between gap-3 rounded px-1.5 py-0.5 ${
+                isToday ? "bg-green-50 font-semibold" : ""
+              }`}
+            >
+              <span
+                className={isToday ? "text-green-800" : "text-gray-700"}
+              >
+                {dayFr}
+              </span>
+              {hours ? (
+                <span
+                  className={`text-right ${
+                    isToday ? "text-green-800" : "text-gray-500"
+                  }`}
+                >
+                  {hours}
+                </span>
               ) : (
-                <span>{line}</span>
+                <span className="text-red-500 font-medium">Fermé</span>
               )}
             </li>
-          ))}
-        </ul>
-      </div>
+          );
+        })}
+      </ul>
     </div>
   );
 }
