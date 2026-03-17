@@ -279,9 +279,9 @@ export default async function VilleSegmentPage({ params }: PageProps) {
                     {p.telephone}
                   </a>
                 )}
-                <div className="text-sm">
-                  <span className="font-medium text-gray-900">Horaires :</span>{" "}
-                  <HorairesDisplay horaires={p.horaires} showOpenNow />
+                <div>
+                  <span className="font-medium text-gray-900 text-sm">Horaires :</span>
+                  <HorairesDisplay horaires={p.horaires} showOpenNow className="mt-1" />
                 </div>
               </div>
               {hasMap && (
