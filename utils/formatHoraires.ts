@@ -118,8 +118,8 @@ export const HORAIRES_INDISPONIBLES = "Horaires non disponibles";
 export function isOpenNow(horaires: string | null | undefined): boolean | null {
   if (horaires == null || String(horaires).trim() === "") return null;
 
-  const s = String(horaires).trim().toLowerCase();
-  if (s === "24/7") return true;
+  const s = String(horaires).trim();
+  if (s.toLowerCase() === "24/7") return true;
 
   const rules = s.split(";").map((r) => r.trim()).filter(Boolean);
   const now = new Date();
@@ -174,4 +174,84 @@ function dayMatchesCurrent(dayPart: string, currentDay: string): boolean {
     return d.split(",").map((x) => x.trim()).indexOf(currentDay) !== -1;
   }
   return false;
+}
+
+// ─── Planning jour par jour ────────────────────────────────────────────────
+
+const JOURS_FR_FULL: Record<string, string> = {
+  Mo: "Lundi",
+  Tu: "Mardi",
+  We: "Mercredi",
+  Th: "Jeudi",
+  Fr: "Vendredi",
+  Sa: "Samedi",
+  Su: "Dimanche",
+};
+
+export type DaySchedule = {
+  dayCode: string;    // "Mo", "Tu", …
+  dayFr: string;      // "Lundi", "Mardi", …
+  hours: string | null; // null = Fermé
+};
+
+/** Expanse "Mo-Sa" ou "Mo,We,Fr" en tableau de codes de jours individuels. */
+function expandDayRange(dayPart: string): string[] {
+  const d = dayPart.trim();
+  if (d.includes("-")) {
+    const [s, e] = d.split("-").map((x) => x.trim());
+    const iS = JOURS_ORDER.indexOf(s);
+    const iE = JOURS_ORDER.indexOf(e);
+    if (iS === -1 || iE === -1) return [];
+    return JOURS_ORDER.slice(iS, iE + 1);
+  }
+  if (d.includes(",")) {
+    return d.split(",").map((x) => x.trim()).filter((x) => JOURS_ORDER.includes(x));
+  }
+  return JOURS_ORDER.includes(d) ? [d] : [];
+}
+
+/**
+ * Convertit une chaîne horaires OSM en planning de 7 jours (Lun → Dim).
+ * Retourne null si les horaires sont absents.
+ */
+export function expandToDailySchedule(
+  horaires: string | null | undefined
+): DaySchedule[] | null {
+  if (horaires == null || String(horaires).trim() === "") return null;
+  const s = String(horaires).trim();
+
+  if (s.toLowerCase() === "24/7") {
+    return JOURS_ORDER.map((code) => ({
+      dayCode: code,
+      dayFr: JOURS_FR_FULL[code] ?? code,
+      hours: "Ouvert 24h/24",
+    }));
+  }
+
+  const schedule: Record<string, string | null> = {};
+
+  for (const rule of s.split(";").map((r) => r.trim()).filter(Boolean)) {
+    const parts = rule.split(/\s+/);
+    const dayPart = parts[0];
+    const rest = parts.slice(1).join(" ").trim();
+    const restLower = rest.toLowerCase();
+
+    const hours =
+      !rest || restLower === "off" || restLower === "closed"
+        ? null
+        : rest
+            .split(",")
+            .map((t) => formatPlageHeures(t.trim()))
+            .join(" et ");
+
+    for (const day of expandDayRange(dayPart)) {
+      schedule[day] = hours;
+    }
+  }
+
+  return JOURS_ORDER.map((code) => ({
+    dayCode: code,
+    dayFr: JOURS_FR_FULL[code] ?? code,
+    hours: schedule[code] !== undefined ? schedule[code] : null,
+  }));
 }

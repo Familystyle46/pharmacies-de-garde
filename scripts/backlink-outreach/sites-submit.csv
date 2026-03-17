@@ -1,0 +1,10 @@
+url,ville,ville_slug,type
+https://www.toulouse-tourisme.com,Toulouse,toulouse,office-tourisme
+https://www.bordeaux-tourisme.com,Bordeaux,bordeaux,office-tourisme
+https://www.dijon.fr,Dijon,dijon,mairie
+https://www.mairie-vars.fr,Vars,vars,mairie
+https://www.nice.fr,Nice,nice,mairie
+https://www.limoges.fr,Limoges,limoges,mairie
+https://www.gironde.fr,Bordeaux,bordeaux,conseil-departemental
+https://www.marne.fr,Reims,reims,conseil-departemental
+https://www.cantal.fr,Aurillac,aurillac,conseil-departemental
