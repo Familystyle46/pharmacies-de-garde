@@ -134,18 +134,29 @@ export async function getVilleBySlug(villeSlug: string): Promise<{ nom: string; 
 }
 
 export async function getAllVillesSlugs(): Promise<string[]> {
-  const { data, error } = await supabase
-    .from("pharmacies")
-    .select("ville_slug")
-    .not("ville_slug", "is", null)
-    .neq("ville_slug", "");
-
-  if (error) return [];
-
+  const PAGE = 1000;
+  let from = 0;
   const seen = new Set<string>();
-  for (const row of data ?? []) {
-    if (row.ville_slug) seen.add(row.ville_slug as string);
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("pharmacies")
+      .select("ville_slug")
+      .not("ville_slug", "is", null)
+      .neq("ville_slug", "")
+      .range(from, from + PAGE - 1);
+
+    if (error) break;
+    if (!data || data.length === 0) break;
+
+    for (const row of data) {
+      if (row.ville_slug) seen.add(row.ville_slug as string);
+    }
+
+    if (data.length < PAGE) break;
+    from += PAGE;
   }
+
   return Array.from(seen);
 }
 
@@ -270,20 +281,31 @@ export async function getVillesByDepartement(
 }
 
 export async function getTopDepartementsCodes(): Promise<string[]> {
-  const { data, error } = await supabase
-    .from("pharmacies")
-    .select("code_postal, departement");
-
-  if (error) return [];
-
+  const PAGE = 1000;
+  let from = 0;
   const byDept = new Map<string, number>();
-  for (const row of data ?? []) {
-    const dep = (row.departement as string)?.trim() || (row.code_postal as string)?.slice(0, 2) || "";
-    if (dep && dep.length >= 2) {
-      const code = dep.length === 1 ? `0${dep}` : dep.slice(0, 2);
-      byDept.set(code, (byDept.get(code) ?? 0) + 1);
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("pharmacies")
+      .select("code_postal, departement")
+      .range(from, from + PAGE - 1);
+
+    if (error) break;
+    if (!data || data.length === 0) break;
+
+    for (const row of data) {
+      const dep = (row.departement as string)?.trim() || (row.code_postal as string)?.slice(0, 2) || "";
+      if (dep && dep.length >= 2) {
+        const code = dep.length === 1 ? `0${dep}` : dep.slice(0, 2);
+        byDept.set(code, (byDept.get(code) ?? 0) + 1);
+      }
     }
+
+    if (data.length < PAGE) break;
+    from += PAGE;
   }
+
   return Array.from(byDept.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 20)
