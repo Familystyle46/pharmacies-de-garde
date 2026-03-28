@@ -22,6 +22,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title,
     description,
     openGraph: { title, description },
+    alternates: {
+      canonical: `https://pharmacies-de-garde.net/departement/${dept}`,
+    },
   };
 }
 

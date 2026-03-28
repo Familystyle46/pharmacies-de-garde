@@ -5,10 +5,13 @@ import "./globals.css";
 
 const GA_ID = "G-NXCSM3RCV5";
 
+const SITE_URL = "https://pharmacies-de-garde.net";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Pharmacies de Garde en France | Trouvez une pharmacie ouverte",
-    template: "%s",
+    template: "%s | Pharmacies de Garde",
   },
   description:
     "Trouvez la pharmacie de garde la plus proche, partout en France. Horaires, adresses et téléphones mis à jour.",
@@ -16,6 +19,15 @@ export const metadata: Metadata = {
     title: "Pharmacies de Garde en France | Trouvez une pharmacie ouverte",
     description: "Trouvez la pharmacie de garde la plus proche, partout en France. Horaires, adresses et téléphones mis à jour.",
     type: "website",
+    url: SITE_URL,
+    siteName: "Pharmacies de Garde",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Pharmacies de Garde en France | Trouvez une pharmacie ouverte",
+    description: "Trouvez la pharmacie de garde la plus proche, partout en France. Horaires, adresses et téléphones mis à jour.",
+    images: ["/opengraph-image"],
   },
 };
 

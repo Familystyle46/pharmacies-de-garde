@@ -1,7 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getVilles } from "@/lib/pharmacies";
 import { SearchBar } from "@/components/SearchBar";
 import { DEPARTEMENTS, TOP_20_DEPARTEMENTS } from "@/lib/departements";
+
+const SITE_URL = "https://pharmacies-de-garde.net";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: SITE_URL,
+  },
+};
 
 const VILLES_FALLBACK: { slug: string; nom: string; departement: string; count: number }[] = [
   { slug: "paris", nom: "Paris", departement: "75", count: 0 },
@@ -62,8 +71,28 @@ export default async function HomePage() {
   if (villes.length === 0) villes = VILLES_FALLBACK;
   const topVilles = villes.slice(0, 20);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Pharmacies de Garde",
+    url: SITE_URL,
+    description: "Trouvez la pharmacie de garde la plus proche, partout en France. Horaires, adresses et téléphones mis à jour.",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${SITE_URL}/pharmacie-de-garde/{search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero */}
       <section
         className="relative overflow-hidden text-center py-20 md:py-28 px-4"
