@@ -1,7 +1,79 @@
 /**
- * Parse le format horaires OpenStreetMap et convertit en lignes lisibles en français.
- * Format OSM : Mo-Sa 09:00-12:30,14:00-19:00; Su off
+ * Parse les horaires en format OSM ou Google Places et convertit en français.
+ * Format OSM    : Mo-Sa 09:00-12:30,14:00-19:00; Su off
+ * Format Google : Monday: 8:30 AM – 12:30 PM, 2:30 – 7:00 PM | Tuesday: ...
  */
+
+// ─── Conversion format Google → OSM ────────────────────────────────────────
+
+const GOOGLE_DAY_TO_OSM: Record<string, string> = {
+  monday: "Mo",
+  tuesday: "Tu",
+  wednesday: "We",
+  thursday: "Th",
+  friday: "Fr",
+  saturday: "Sa",
+  sunday: "Su",
+};
+
+function isGoogleFormat(s: string): boolean {
+  return /^(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s*:/i.test(s.trim());
+}
+
+function parseAmPmTime(t: string): string {
+  const m = t.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!m) {
+    // Peut être juste "2:30" sans AM/PM (continuation d'une plage)
+    const bare = t.trim().match(/^(\d{1,2}):(\d{2})$/);
+    if (bare) return t.trim();
+    return t.trim();
+  }
+  let h = parseInt(m[1]);
+  const min = m[2];
+  const period = m[3].toUpperCase();
+  if (period === "AM") {
+    if (h === 12) h = 0;
+  } else {
+    if (h !== 12) h += 12;
+  }
+  return `${String(h).padStart(2, "0")}:${min}`;
+}
+
+function convertGoogleToOsm(googleStr: string): string {
+  const parts = googleStr.split(" | ");
+  const rules: string[] = [];
+
+  for (const part of parts) {
+    const colonIdx = part.indexOf(": ");
+    if (colonIdx === -1) continue;
+    const dayName = part.slice(0, colonIdx).trim().toLowerCase();
+    const osmDay = GOOGLE_DAY_TO_OSM[dayName];
+    if (!osmDay) continue;
+    const hoursStr = part.slice(colonIdx + 2).trim();
+    if (!hoursStr || hoursStr.toLowerCase() === "closed") {
+      rules.push(`${osmDay} off`);
+      continue;
+    }
+    // Ex: "8:30 AM – 12:30 PM, 2:30 – 7:00 PM"
+    const ranges = hoursStr.split(/,\s*/).map((r) => {
+      const dashParts = r.split(/\s*[–\-]\s*/);
+      if (dashParts.length === 2) {
+        return `${parseAmPmTime(dashParts[0])}-${parseAmPmTime(dashParts[1])}`;
+      }
+      return r.trim();
+    });
+    rules.push(`${osmDay} ${ranges.join(",")}`);
+  }
+
+  return rules.join("; ");
+}
+
+/** Normalise les horaires vers le format OSM quel que soit le format d'entrée. */
+function normalizeHoraires(horaires: string): string {
+  const s = horaires.trim();
+  if (isGoogleFormat(s)) return convertGoogleToOsm(s);
+  return s;
+}
 
 const JOURS_OSM_TO_FR: Record<string, string> = {
   Mo: "Lun",
@@ -89,7 +161,7 @@ export function formatHoraires(horaires: string | null | undefined): string[] {
     return [];
   }
 
-  const s = String(horaires).trim();
+  const s = normalizeHoraires(String(horaires).trim());
   const lower = s.toLowerCase();
   if (lower === "24/7") {
     return ["Ouvert 24h/24, 7j/7"];
@@ -118,7 +190,7 @@ export const HORAIRES_INDISPONIBLES = "Horaires non disponibles";
 export function isOpenNow(horaires: string | null | undefined): boolean | null {
   if (horaires == null || String(horaires).trim() === "") return null;
 
-  const s = String(horaires).trim();
+  const s = normalizeHoraires(String(horaires).trim());
   if (s.toLowerCase() === "24/7") return true;
 
   const rules = s.split(";").map((r) => r.trim()).filter(Boolean);
@@ -218,7 +290,7 @@ export function expandToDailySchedule(
   horaires: string | null | undefined
 ): DaySchedule[] | null {
   if (horaires == null || String(horaires).trim() === "") return null;
-  const s = String(horaires).trim();
+  const s = normalizeHoraires(String(horaires).trim());
 
   if (s.toLowerCase() === "24/7") {
     return JOURS_ORDER.map((code) => ({
