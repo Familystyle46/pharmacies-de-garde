@@ -7,6 +7,8 @@ import {
 import { getDepartementByCode, TOP_20_DEPARTEMENTS } from "@/lib/departements";
 import { Breadcrumb } from "@/components/Breadcrumb";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ dept: string }>;
 }
