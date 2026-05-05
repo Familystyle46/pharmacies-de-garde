@@ -8,7 +8,7 @@ import { getDepartementByCode, TOP_20_DEPARTEMENTS } from "@/lib/departements";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { AdUnit } from "@/components/AdUnit";
 
-const AD_SLOT_DEPT = "1122334455"; // Pub milieu page département
+const AD_SLOT_DEPT = "3240080460"; // Pub page département
 
 export const dynamic = "force-dynamic";
 

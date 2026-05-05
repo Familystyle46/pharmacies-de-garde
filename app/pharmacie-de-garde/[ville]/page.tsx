@@ -17,8 +17,8 @@ import { VillesProches } from "@/components/VillesProches";
 import { AdUnit } from "@/components/AdUnit";
 
 // Slots AdSense — à remplacer par tes vrais IDs une fois le compte approuvé
-const AD_SLOT_IN_LIST = "1234567890";   // Entre la 3e et 4e pharmacie
-const AD_SLOT_BOTTOM  = "0987654321";   // Après le FAQ
+const AD_SLOT_IN_LIST = "3925019909";   // Entre la 3e et 4e pharmacie
+const AD_SLOT_BOTTOM  = "2611938233";   // Après le FAQ
 
 const SITE_URL = "https://pharmacies-de-garde.net";
 
