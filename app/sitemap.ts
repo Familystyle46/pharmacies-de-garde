@@ -4,6 +4,7 @@ import {
   getAllPharmaciesSlugs,
   getTopDepartementsCodes,
 } from "@/lib/pharmacies";
+import { JOURS_FERIES } from "@/lib/jours-feries";
 
 const SITE_URL = process.env.SITE_URL || "https://pharmacies-de-garde.net";
 
@@ -39,6 +40,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.75,
   }));
 
+  const joursFeriesIndexUrl: MetadataRoute.Sitemap = [
+    {
+      url: `${SITE_URL}/jours-feries`,
+      lastModified: today,
+      changeFrequency: "yearly" as const,
+      priority: 0.85,
+    },
+  ];
+
+  const joursFeriesUrls: MetadataRoute.Sitemap = JOURS_FERIES.map((j) => ({
+    url: `${SITE_URL}/jours-feries/${j.slug}`,
+    lastModified: today,
+    changeFrequency: "yearly" as const,
+    priority: 0.8,
+  }));
+
   return [
     {
       url: SITE_URL,
@@ -46,6 +63,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 1,
     },
+    ...joursFeriesIndexUrl,
+    ...joursFeriesUrls,
     ...departementUrls,
     ...villeUrls,
     ...pharmacieUrls,

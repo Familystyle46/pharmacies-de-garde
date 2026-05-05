@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getVilles } from "@/lib/pharmacies";
 import { SearchBar } from "@/components/SearchBar";
 import { DEPARTEMENTS, TOP_20_DEPARTEMENTS } from "@/lib/departements";
+import { JOURS_FERIES } from "@/lib/jours-feries";
 
 const SITE_URL = "https://pharmacies-de-garde.net";
 
@@ -191,6 +192,35 @@ export default async function HomePage() {
         <p className="mt-6 text-sm text-gray-500">
           Les 20 départements les plus peuplés
         </p>
+      </section>
+
+      {/* Jours fériés */}
+      <section className="max-w-6xl mx-auto py-16 px-4 border-t border-gray-200">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          Pharmacies ouvertes les jours fériés
+        </h2>
+        <p className="text-gray-600 mb-8">
+          Trouvez rapidement une pharmacie de garde lors des jours fériés
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          {JOURS_FERIES.map((jour) => (
+            <Link
+              key={jour.slug}
+              href={`/jours-feries/${jour.slug}`}
+              className="flex items-center gap-2 rounded-xl bg-white p-3 shadow-sm border border-gray-100 transition-all hover:border-primary hover:shadow-md hover:-translate-y-0.5 group"
+            >
+              <span className="text-xl">{jour.emoji}</span>
+              <span className="font-medium text-gray-800 group-hover:text-primary transition-colors text-sm truncate">
+                {jour.nom}
+              </span>
+            </Link>
+          ))}
+        </div>
+        <div className="mt-4 text-right">
+          <Link href="/jours-feries" className="text-sm text-primary font-medium hover:underline">
+            Voir tous les jours fériés →
+          </Link>
+        </div>
       </section>
 
       {/* Comment ça marche */}

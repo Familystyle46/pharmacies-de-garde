@@ -96,6 +96,7 @@ export default function RootLayout({
                 <h3 className="font-bold text-white mb-4">Liens utiles</h3>
                 <ul className="space-y-2 text-sm">
                   <li><Link href="/" className="text-gray-400 hover:text-white transition-colors">Accueil</Link></li>
+                  <li><Link href="/jours-feries" className="text-gray-400 hover:text-white transition-colors">Jours Fériés</Link></li>
                   <li><Link href="/contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link></li>
                   <li><a href="https://www.ordre.pharmacien.fr" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">Ordre des Pharmaciens</a></li>
                   <li><a href="tel:3237" className="text-gray-400 hover:text-white transition-colors">3237 — Pharmacie de garde</a></li>
