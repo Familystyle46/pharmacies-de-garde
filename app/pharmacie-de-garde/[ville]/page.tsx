@@ -14,6 +14,11 @@ import { PharmacieCard } from "@/components/PharmacieCard";
 import { MapView } from "@/components/MapView";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { VillesProches } from "@/components/VillesProches";
+import { AdUnit } from "@/components/AdUnit";
+
+// Slots AdSense — à remplacer par tes vrais IDs une fois le compte approuvé
+const AD_SLOT_IN_LIST = "1234567890";   // Entre la 3e et 4e pharmacie
+const AD_SLOT_BOTTOM  = "0987654321";   // Après le FAQ
 
 const SITE_URL = "https://pharmacies-de-garde.net";
 
@@ -227,13 +232,25 @@ export default async function VillePage({ params }: PageProps) {
           <div className="lg:w-[60%] lg:flex-shrink-0">
             {pharmacies.length > 0 ? (
               <div className="space-y-4">
-                {pharmacies.map((p) => (
-                  <PharmacieCard
-                    key={p.id}
-                    pharmacie={p}
-                    villeSlug={ville}
-                    pharmacieSlug={getPharmacieSlug(p.nom)}
-                  />
+                {pharmacies.map((p, index) => (
+                  <>
+                    <PharmacieCard
+                      key={p.id}
+                      pharmacie={p}
+                      villeSlug={ville}
+                      pharmacieSlug={getPharmacieSlug(p.nom)}
+                    />
+                    {/* Pub après la 3e pharmacie, si liste > 4 */}
+                    {index === 2 && pharmacies.length > 4 && (
+                      <AdUnit
+                        key="ad-in-list"
+                        slot={AD_SLOT_IN_LIST}
+                        format="rectangle"
+                        className="my-2"
+                        style={{ minHeight: 250 }}
+                      />
+                    )}
+                  </>
                 ))}
               </div>
             ) : (
@@ -289,6 +306,14 @@ export default async function VillePage({ params }: PageProps) {
             <strong> 112</strong> (urgence européenne). Pharmacie de garde : <strong>3237</strong>.
           </p>
         </section>
+
+        {/* Pub horizontale bas de page — après À savoir, avant FAQ */}
+        <AdUnit
+          slot={AD_SLOT_BOTTOM}
+          format="horizontal"
+          className="mt-8"
+          style={{ minHeight: 90 }}
+        />
 
         {/* Section FAQ */}
         <section className="mt-8">

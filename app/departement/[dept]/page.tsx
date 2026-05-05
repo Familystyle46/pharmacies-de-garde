@@ -6,6 +6,9 @@ import {
 } from "@/lib/pharmacies";
 import { getDepartementByCode, TOP_20_DEPARTEMENTS } from "@/lib/departements";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { AdUnit } from "@/components/AdUnit";
+
+const AD_SLOT_DEPT = "1122334455"; // Pub milieu page département
 
 export const dynamic = "force-dynamic";
 
@@ -112,7 +115,15 @@ export default async function DepartementPage({ params }: PageProps) {
           </div>
         )}
 
-        <div className="mt-10">
+        {/* Pub après la liste des villes */}
+        <AdUnit
+          slot={AD_SLOT_DEPT}
+          format="horizontal"
+          className="mt-8"
+          style={{ minHeight: 90 }}
+        />
+
+        <div className="mt-8">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-primary font-medium hover:text-primary-hover transition-colors"
