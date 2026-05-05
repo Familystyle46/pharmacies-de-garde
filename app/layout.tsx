@@ -39,14 +39,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body className="min-h-screen flex flex-col">
-        {/* Google AdSense */}
-        <Script
+      <head>
+        {/* Google AdSense — doit être dans <head> pour validation */}
+        <script
           async
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
           crossOrigin="anonymous"
-          strategy="afterInteractive"
         />
+      </head>
+      <body className="min-h-screen flex flex-col">
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
           strategy="afterInteractive"
