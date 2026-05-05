@@ -2,8 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-// Remplace par ton Publisher ID AdSense : ca-pub-XXXXXXXXXXXXXXXXX
-const AD_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-XXXXXXXXXXXXXXXXX";
+const AD_CLIENT = "ca-pub-2505467818694115";
 
 interface AdUnitProps {
   slot: string;
@@ -28,9 +27,7 @@ export function AdUnit({
 
   useEffect(() => {
     if (pushed.current) return;
-    // Ne pas afficher en dev si pas encore de vrai client ID
-    if (AD_CLIENT === "ca-pub-XXXXXXXXXXXXXXXXX") return;
-    try {
+      try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
       pushed.current = true;
@@ -38,18 +35,6 @@ export function AdUnit({
       /* AdSense bloqué par un adblocker — silencieux */
     }
   }, []);
-
-  // En dev ou sans publisher ID : placeholder visible pour la mise en page
-  if (AD_CLIENT === "ca-pub-XXXXXXXXXXXXXXXXX") {
-    return (
-      <div
-        className={`flex items-center justify-center rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 text-xs text-gray-400 ${className}`}
-        style={{ minHeight: 90, ...style }}
-      >
-        📢 Emplacement publicitaire
-      </div>
-    );
-  }
 
   return (
     <div className={className}>

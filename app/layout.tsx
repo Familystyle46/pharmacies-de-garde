@@ -4,7 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 
 const GA_ID = "G-NXCSM3RCV5";
-const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "";
+const ADSENSE_CLIENT = "ca-pub-2505467818694115";
 
 const SITE_URL = "https://pharmacies-de-garde.net";
 
@@ -40,15 +40,13 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className="min-h-screen flex flex-col">
-        {/* Google AdSense — actif uniquement quand NEXT_PUBLIC_ADSENSE_CLIENT est défini */}
-        {ADSENSE_CLIENT && (
-          <Script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
-            crossOrigin="anonymous"
-            strategy="afterInteractive"
-          />
-        )}
+        {/* Google AdSense */}
+        <Script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
           strategy="afterInteractive"
