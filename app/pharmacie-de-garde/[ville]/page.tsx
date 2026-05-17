@@ -32,8 +32,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { ville } = await params;
   const info = await getVilleBySlug(ville);
   const villeNom = info?.nom ?? ville.replace(/-/g, " ");
-  const title = `${villeNom} - Pharmacie de Garde | Horaires & Adresses`;
-  const description = `Trouvez la pharmacie de garde à ${villeNom} ouverte maintenant. Liste complète avec adresses, téléphones et horaires. Mis à jour en temps réel.`;
+  const title = `Pharmacie de Garde à ${villeNom} — Ouverte Nuit, Dimanche & Jours Fériés`;
+  const description = `Pharmacie de garde à ${villeNom} ouverte près de chez vous — la nuit, le dimanche et les jours fériés. Adresses, téléphones et horaires mis à jour. Appelez le 3237.`;
 
   return {
     title,
@@ -278,33 +278,53 @@ export default async function VillePage({ params }: PageProps) {
         )}
 
         {/* Section À savoir */}
-        <section className="mt-12 rounded-xl bg-gray-50 border border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-3">
-            À savoir : pharmacie de garde à {villeNom}
-          </h2>
-          <p className="text-gray-600 text-sm leading-relaxed mb-3">
-            Les pharmacies de garde à <strong>{villeNom}</strong>
-            {departementNom ? ` (${departementNom})` : ""} assurent un service de permanence en dehors
-            des horaires habituels : nuits, dimanches et jours fériés. Ce service est organisé par le
-            Conseil de l&apos;Ordre des Pharmaciens selon un calendrier de rotation mensuel.
-          </p>
-          <p className="text-gray-600 text-sm leading-relaxed mb-3">
-            {pharmacies.length > 0 ? (
-              <>
-                <strong>{pharmacies.length} pharmacie{pharmacies.length > 1 ? "s" : ""}</strong> assure{pharmacies.length > 1 ? "nt" : ""} actuellement la garde à {villeNom}.
-                Pour obtenir les coordonnées de la pharmacie de garde, appelez le <strong>3237</strong>.
-              </>
-            ) : (
-              <>
-                Pour obtenir les coordonnées de la pharmacie de garde à {villeNom}, appelez le <strong>3237</strong>.
-                Ce service vous oriente vers la pharmacie de garde la plus proche ouverte.
-              </>
-            )}
-          </p>
-          <p className="text-gray-600 text-sm leading-relaxed m-0">
-            En cas d&apos;urgence médicale grave : <strong>15</strong> (SAMU), <strong>18</strong> (Pompiers),
-            <strong> 112</strong> (urgence européenne). Pharmacie de garde : <strong>3237</strong>.
-          </p>
+        <section className="mt-12 rounded-xl bg-gray-50 border border-gray-200 p-6 space-y-6">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 mb-3">
+              À savoir : pharmacie de garde à {villeNom}
+            </h2>
+            <p className="text-gray-600 text-sm leading-relaxed mb-3">
+              Les pharmacies de garde à <strong>{villeNom}</strong>
+              {departementNom ? ` (${departementNom})` : ""} assurent un service de permanence en dehors
+              des horaires habituels : nuits, dimanches et jours fériés. Ce service est organisé par le
+              Conseil de l&apos;Ordre des Pharmaciens selon un calendrier de rotation mensuel.
+            </p>
+            <p className="text-gray-600 text-sm leading-relaxed mb-3">
+              {pharmacies.length > 0 ? (
+                <>
+                  <strong>{pharmacies.length} pharmacie{pharmacies.length > 1 ? "s" : ""}</strong> assure{pharmacies.length > 1 ? "nt" : ""} actuellement la garde à {villeNom}.
+                  Pour obtenir les coordonnées de la pharmacie de garde, appelez le <strong>3237</strong>.
+                </>
+              ) : (
+                <>
+                  Pour obtenir les coordonnées de la pharmacie de garde à {villeNom}, appelez le <strong>3237</strong>.
+                  Ce service vous oriente vers la pharmacie de garde la plus proche ouverte.
+                </>
+              )}
+            </p>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              En cas d&apos;urgence médicale grave : <strong>15</strong> (SAMU), <strong>18</strong> (Pompiers),
+              <strong> 112</strong> (urgence européenne). Pharmacie de garde : <strong>3237</strong>.
+            </p>
+          </div>
+
+          <div className="border-t border-gray-200 pt-5">
+            <h2 className="text-lg font-bold text-gray-900 mb-2">
+              Pharmacie de garde de nuit à {villeNom}
+            </h2>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              La nuit, les pharmacies habituelles sont fermées. Une <strong>pharmacie de garde de nuit à {villeNom}</strong> est disponible selon le calendrier de permanence pour délivrer les médicaments urgents. Pour connaître la pharmacie de nuit ouverte, appelez le <strong>3237</strong> depuis votre téléphone (service disponible 24h/24). Le 3237 vous indique immédiatement les coordonnées de la pharmacie de nuit la plus proche de chez vous à {villeNom}.
+            </p>
+          </div>
+
+          <div className="border-t border-gray-200 pt-5">
+            <h2 className="text-lg font-bold text-gray-900 mb-2">
+              Pharmacie de garde dimanche à {villeNom}
+            </h2>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              Le dimanche, une <strong>pharmacie de garde ouverte à {villeNom}</strong> assure la permanence pharmaceutique. Elle est désignée par roulement par le Conseil de l&apos;Ordre des Pharmaciens{departementNom ? ` du ${departementNom}` : ""}. Pour trouver la pharmacie ouverte le dimanche près de chez vous à {villeNom}, consultez la liste ci-dessus ou appelez le <strong>3237</strong>. Ce service est aussi disponible les jours fériés.
+            </p>
+          </div>
         </section>
 
         {/* Pub horizontale bas de page — après À savoir, avant FAQ */}

@@ -4,6 +4,7 @@ import { getVilles } from "@/lib/pharmacies";
 import { SearchBar } from "@/components/SearchBar";
 import { DEPARTEMENTS, TOP_20_DEPARTEMENTS } from "@/lib/departements";
 import { JOURS_FERIES } from "@/lib/jours-feries";
+import { REGIONS } from "@/lib/regions";
 
 const SITE_URL = "https://pharmacies-de-garde.net";
 
@@ -209,6 +210,29 @@ export default async function HomePage() {
         <p className="mt-6 text-sm text-gray-500">
           Les 20 départements les plus peuplés
         </p>
+      </section>
+
+      {/* Par région */}
+      <section className="max-w-6xl mx-auto py-16 px-4 border-t border-gray-200">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          Par région
+        </h2>
+        <p className="text-gray-600 mb-8">
+          Trouvez une pharmacie de garde dans votre région
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          {REGIONS.map((region) => (
+            <Link
+              key={region.slug}
+              href={`/region/${region.slug}`}
+              className="group flex items-center gap-2 rounded-xl bg-white p-3 shadow-sm border border-gray-100 transition-all hover:border-primary hover:shadow-md hover:-translate-y-0.5"
+            >
+              <span className="font-medium text-gray-800 group-hover:text-primary transition-colors text-sm">
+                {region.nom}
+              </span>
+            </Link>
+          ))}
+        </div>
       </section>
 
       {/* Jours fériés */}
