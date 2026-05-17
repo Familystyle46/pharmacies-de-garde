@@ -40,6 +40,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.75,
   }));
 
+  const staticPages: MetadataRoute.Sitemap = [
+    {
+      url: `${SITE_URL}/3237-pharmacie-de-garde`,
+      lastModified: today,
+      changeFrequency: "monthly" as const,
+      priority: 0.9,
+    },
+  ];
+
   const joursFeriesIndexUrl: MetadataRoute.Sitemap = [
     {
       url: `${SITE_URL}/jours-feries`,
@@ -63,6 +72,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 1,
     },
+    ...staticPages,
     ...joursFeriesIndexUrl,
     ...joursFeriesUrls,
     ...departementUrls,

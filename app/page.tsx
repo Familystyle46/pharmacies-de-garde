@@ -8,6 +8,9 @@ import { JOURS_FERIES } from "@/lib/jours-feries";
 const SITE_URL = "https://pharmacies-de-garde.net";
 
 export const metadata: Metadata = {
+  title: "Pharmacie de Garde en France — 3237 | Trouvez une pharmacie ouverte",
+  description:
+    "Trouvez la pharmacie de garde la plus proche de chez vous, partout en France. Appelez le 3237 ou recherchez par ville : horaires, adresses, téléphones. Nuit, dimanche, jours fériés.",
   alternates: {
     canonical: SITE_URL,
   },
@@ -72,12 +75,12 @@ export default async function HomePage() {
   if (villes.length === 0) villes = VILLES_FALLBACK;
   const topVilles = villes.slice(0, 20);
 
-  const jsonLd = {
+  const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "Pharmacies de Garde",
     url: SITE_URL,
-    description: "Trouvez la pharmacie de garde la plus proche, partout en France. Horaires, adresses et téléphones mis à jour.",
+    description: "Trouvez la pharmacie de garde la plus proche, partout en France. Appelez le 3237 ou recherchez par ville.",
     potentialAction: {
       "@type": "SearchAction",
       target: {
@@ -88,12 +91,26 @@ export default async function HomePage() {
     },
   };
 
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Pharmacies de Garde",
+    url: SITE_URL,
+    logo: `${SITE_URL}/logo.png`,
+    description: "Service d'annuaire des pharmacies de garde en France. Trouvez une pharmacie ouverte la nuit, le dimanche ou les jours fériés.",
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: "3237",
+      contactType: "customer service",
+      availableLanguage: "French",
+      areaServed: "FR",
+    },
+  };
+
   return (
     <div>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
       {/* Hero */}
       <section
         className="relative overflow-hidden text-center py-20 md:py-28 px-4"
@@ -243,6 +260,43 @@ export default async function HomePage() {
                 <p className="text-gray-600 text-sm leading-relaxed">{etape.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Section éditoriale — pharmacie de garde & 3237 */}
+      <section className="max-w-6xl mx-auto py-16 px-4 border-t border-gray-200">
+        <div className="grid md:grid-cols-2 gap-10">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Pharmacie de garde : comment en trouver une rapidement ?
+            </h2>
+            <p className="text-gray-600 text-sm leading-relaxed mb-3">
+              Une <strong>pharmacie de garde</strong> est une officine désignée par le Conseil de l&apos;Ordre des Pharmaciens pour assurer la permanence pharmaceutique en dehors des horaires habituels d&apos;ouverture : la nuit, le dimanche et les jours fériés. Elle est ouverte selon un calendrier de rotation mensuel.
+            </p>
+            <p className="text-gray-600 text-sm leading-relaxed mb-3">
+              Pour trouver une pharmacie de garde, vous avez trois options : composer le <strong>3237</strong> (service payant à 0,35 €/min), consulter notre annuaire par ville ci-dessus, ou lire l&apos;affichage obligatoire sur la porte de votre pharmacie habituelle.
+            </p>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              En cas d&apos;urgence médicale grave, n&apos;attendez pas : appelez le <strong>15</strong> (SAMU), le <strong>18</strong> (Pompiers) ou le <strong>112</strong> (numéro d&apos;urgence européen).
+            </p>
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Le 3237 : numéro national pharmacie de garde
+            </h2>
+            <p className="text-gray-600 text-sm leading-relaxed mb-3">
+              Le <strong>3237</strong> est le numéro court de la permanence des soins en France. En l&apos;appelant, vous êtes redirigé vers le service de régulation pharmaceutique de votre département, qui vous indique immédiatement la pharmacie de garde disponible la plus proche.
+            </p>
+            <p className="text-gray-600 text-sm leading-relaxed mb-4">
+              Ce service est disponible <strong>24h/24, 7j/7</strong>, y compris les nuits, dimanches et jours fériés. Il fonctionne depuis toute la France métropolitaine et les DOM-TOM.
+            </p>
+            <Link
+              href="/3237-pharmacie-de-garde"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+            >
+              Tout savoir sur le 3237 →
+            </Link>
           </div>
         </div>
       </section>

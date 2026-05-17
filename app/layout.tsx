@@ -11,14 +11,19 @@ const SITE_URL = "https://pharmacies-de-garde.net";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Pharmacies de Garde en France | Trouvez une pharmacie ouverte",
+    default: "Pharmacies de Garde en France — 3237 | Trouvez une pharmacie ouverte",
     template: "%s | Pharmacies de Garde",
   },
   description:
-    "Trouvez la pharmacie de garde la plus proche, partout en France. Horaires, adresses et téléphones mis à jour.",
+    "Trouvez la pharmacie de garde la plus proche, partout en France. Appelez le 3237 ou recherchez par ville. Horaires, adresses et téléphones mis à jour.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
   openGraph: {
-    title: "Pharmacies de Garde en France | Trouvez une pharmacie ouverte",
-    description: "Trouvez la pharmacie de garde la plus proche, partout en France. Horaires, adresses et téléphones mis à jour.",
+    title: "Pharmacies de Garde en France — 3237 | Trouvez une pharmacie ouverte",
+    description: "Trouvez la pharmacie de garde la plus proche, partout en France. Appelez le 3237 ou recherchez par ville.",
     type: "website",
     url: SITE_URL,
     siteName: "Pharmacies de Garde",
@@ -26,8 +31,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pharmacies de Garde en France | Trouvez une pharmacie ouverte",
-    description: "Trouvez la pharmacie de garde la plus proche, partout en France. Horaires, adresses et téléphones mis à jour.",
+    title: "Pharmacies de Garde en France — 3237 | Trouvez une pharmacie ouverte",
+    description: "Trouvez la pharmacie de garde la plus proche, partout en France. Appelez le 3237 ou recherchez par ville.",
     images: ["/opengraph-image"],
   },
 };
@@ -38,16 +43,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
-      <head>
-        {/* Google AdSense — doit être dans <head> pour validation */}
-        <script
-          async
+    <html lang="fr" suppressHydrationWarning>
+      <body className="min-h-screen flex flex-col" suppressHydrationWarning>
+        {/* Google AdSense — validation déjà passée, afterInteractive évite les erreurs d'hydratation */}
+        <Script
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+          strategy="afterInteractive"
           crossOrigin="anonymous"
         />
-      </head>
-      <body className="min-h-screen flex flex-col">
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
           strategy="afterInteractive"
@@ -96,6 +99,7 @@ export default function RootLayout({
                 <h3 className="font-bold text-white mb-4">Liens utiles</h3>
                 <ul className="space-y-2 text-sm">
                   <li><Link href="/" className="text-gray-400 hover:text-white transition-colors">Accueil</Link></li>
+                  <li><Link href="/3237-pharmacie-de-garde" className="text-gray-400 hover:text-white transition-colors">Le 3237</Link></li>
                   <li><Link href="/jours-feries" className="text-gray-400 hover:text-white transition-colors">Jours Fériés</Link></li>
                   <li><Link href="/contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link></li>
                   <li><a href="https://www.ordre.pharmacien.fr" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">Ordre des Pharmaciens</a></li>
@@ -124,3 +128,4 @@ export default function RootLayout({
     </html>
   );
 }
+
