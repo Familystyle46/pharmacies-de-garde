@@ -101,6 +101,8 @@ export default function RootLayout({
                   <li><Link href="/" className="text-gray-400 hover:text-white transition-colors">Accueil</Link></li>
                   <li><Link href="/3237-pharmacie-de-garde" className="text-gray-400 hover:text-white transition-colors">Le 3237</Link></li>
                   <li><Link href="/pharmacie-de-garde-aujourd-hui" className="text-gray-400 hover:text-white transition-colors">Pharmacie ouverte aujourd&apos;hui</Link></li>
+                  <li><Link href="/pharmacie-ouverte-dimanche" className="text-gray-400 hover:text-white transition-colors">Pharmacie ouverte dimanche</Link></li>
+                  <li><Link href="/pharmacie-de-garde-nuit" className="text-gray-400 hover:text-white transition-colors">Pharmacie de garde de nuit</Link></li>
                   <li><Link href="/jours-feries" className="text-gray-400 hover:text-white transition-colors">Jours Fériés</Link></li>
                   <li><Link href="/contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link></li>
                   <li><a href="https://www.ordre.pharmacien.fr" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">Ordre des Pharmaciens</a></li>

@@ -288,6 +288,32 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Raccourcis permanence */}
+      <section className="max-w-6xl mx-auto py-10 px-4 border-t border-gray-200">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+          Pharmacie de garde — Accès rapide
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[
+            { href: "/pharmacie-de-garde-aujourd-hui", emoji: "📅", label: "Ouverte aujourd'hui" },
+            { href: "/pharmacie-ouverte-dimanche", emoji: "🕊️", label: "Ouverte dimanche" },
+            { href: "/pharmacie-de-garde-nuit", emoji: "🌙", label: "Garde de nuit" },
+            { href: "/3237-pharmacie-de-garde", emoji: "📞", label: "Le 3237" },
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="group flex flex-col items-center text-center gap-2 rounded-2xl bg-white p-5 shadow-md border border-gray-100 transition-all hover:border-primary hover:shadow-lg hover:-translate-y-0.5"
+            >
+              <span className="text-3xl">{item.emoji}</span>
+              <span className="font-semibold text-gray-900 group-hover:text-primary transition-colors text-sm">
+                {item.label}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* Section éditoriale — pharmacie de garde & 3237 */}
       <section className="max-w-6xl mx-auto py-16 px-4 border-t border-gray-200">
         <div className="grid md:grid-cols-2 gap-10">

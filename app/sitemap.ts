@@ -4,7 +4,7 @@ import {
   getAllPharmaciesSlugs,
   getTopDepartementsCodes,
 } from "@/lib/pharmacies";
-import { JOURS_FERIES } from "@/lib/jours-feries";
+import { JOURS_FERIES, TOP_VILLES } from "@/lib/jours-feries";
 import { REGIONS } from "@/lib/regions";
 
 const SITE_URL = process.env.SITE_URL || "https://pharmacies-de-garde.net";
@@ -54,7 +54,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily" as const,
       priority: 0.9,
     },
+    {
+      url: `${SITE_URL}/pharmacie-ouverte-dimanche`,
+      lastModified: today,
+      changeFrequency: "weekly" as const,
+      priority: 0.85,
+    },
+    {
+      url: `${SITE_URL}/pharmacie-de-garde-nuit`,
+      lastModified: today,
+      changeFrequency: "weekly" as const,
+      priority: 0.85,
+    },
   ];
+
+  // 330 pages croisées jour-férié × ville (11 × 30)
+  const joursFeriesVilleUrls: MetadataRoute.Sitemap = JOURS_FERIES.flatMap((j) =>
+    TOP_VILLES.map((v) => ({
+      url: `${SITE_URL}/jours-feries/${j.slug}/${v.slug}`,
+      lastModified: today,
+      changeFrequency: "yearly" as const,
+      priority: 0.7,
+    }))
+  );
 
   const regionUrls: MetadataRoute.Sitemap = REGIONS.map((r) => ({
     url: `${SITE_URL}/region/${r.slug}`,
@@ -89,6 +111,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticPages,
     ...joursFeriesIndexUrl,
     ...joursFeriesUrls,
+    ...joursFeriesVilleUrls,
     ...regionUrls,
     ...departementUrls,
     ...villeUrls,
