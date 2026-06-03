@@ -33,12 +33,65 @@ const breadcrumbSchema = {
   ],
 };
 
+const itemListSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "Pharmacie de garde les jours fériés en France — Liste 2026",
+  description: "Les 11 jours fériés officiels en France et les informations pour trouver une pharmacie de garde ouverte.",
+  numberOfItems: JOURS_FERIES.length,
+  itemListElement: JOURS_FERIES.map((jour, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    name: jour.nomComplet,
+    url: `${SITE_URL}/jours-feries/${jour.slug}`,
+  })),
+};
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Les pharmacies sont-elles ouvertes les jours fériés ?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Les pharmacies habituelles sont généralement fermées les jours fériés. Une pharmacie de garde assure la permanence dans chaque secteur. Appelez le 3237 pour connaître la pharmacie ouverte la plus proche, ou consultez notre liste par jour férié.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Comment trouver une pharmacie ouverte un jour férié ?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Trois solutions : (1) appelez le 3237 (disponible 24h/24, 7j/7, 0,35 €/min) ; (2) consultez notre annuaire par jour férié et par ville ; (3) lisez l'affichage obligatoire sur la porte de votre pharmacie habituelle.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Quels sont les jours fériés en France en 2026 ?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "La France compte 11 jours fériés officiels : 1er janvier, Lundi de Pâques, 1er mai, 8 mai, Ascension, Lundi de Pentecôte, 14 juillet, 15 août, 1er novembre, 11 novembre, 25 décembre.",
+      },
+    },
+  ],
+};
+
 export default function JoursFeriesPage() {
   return (
     <div className="min-h-screen">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
       <div className="max-w-4xl mx-auto px-4 py-6">
@@ -134,6 +187,41 @@ export default function JoursFeriesPage() {
             En cas d&apos;urgence médicale grave : <strong>15</strong> (SAMU), <strong>18</strong> (Pompiers),
             <strong> 112</strong> (urgence européenne).
           </p>
+        </section>
+
+        {/* FAQ */}
+        <section className="mt-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            Questions fréquentes — pharmacie de garde jours fériés
+          </h2>
+          <div className="space-y-3">
+            {[
+              {
+                q: "Les pharmacies sont-elles ouvertes les jours fériés ?",
+                a: "Les pharmacies habituelles sont généralement fermées les jours fériés. Une pharmacie de garde assure la permanence dans chaque secteur. Appelez le 3237 pour connaître la pharmacie ouverte la plus proche, ou consultez la liste par jour férié ci-dessus.",
+              },
+              {
+                q: "Comment trouver une pharmacie ouverte un jour férié ?",
+                a: "Trois solutions : (1) appelez le 3237 (disponible 24h/24, 7j/7, 0,35 €/min) ; (2) consultez notre annuaire par jour férié et par ville ; (3) lisez l'affichage obligatoire sur la porte de votre pharmacie habituelle.",
+              },
+              {
+                q: "Quels sont les jours fériés en France en 2026 ?",
+                a: "La France compte 11 jours fériés officiels : 1er janvier, Lundi de Pâques, 1er mai, 8 mai, Ascension, Lundi de Pentecôte, 14 juillet, 15 août, 1er novembre, 11 novembre, 25 décembre.",
+              },
+              {
+                q: "Le 3237 fonctionne-t-il les jours fériés ?",
+                a: "Oui. Le 3237 est disponible 24h/24, 7j/7, tous les jours fériés sans exception. Ce numéro court vous met en relation avec la pharmacie de garde la plus proche dans votre secteur.",
+              },
+            ].map(({ q, a }) => (
+              <details key={q} className="rounded-lg border border-gray-200 bg-white p-4 group">
+                <summary className="font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
+                  {q}
+                  <span className="ml-2 text-gray-400 flex-shrink-0">▾</span>
+                </summary>
+                <p className="mt-3 text-gray-600 text-sm leading-relaxed">{a}</p>
+              </details>
+            ))}
+          </div>
         </section>
 
         <div className="mt-8">
