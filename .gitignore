@@ -32,3 +32,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# données de prospection : contiennent des coordonnées personnelles
+# (emails de pharmaciens, contacts mairies) — à ne jamais publier
+/outreach/
+/backlinks-*.csv
+/.playwright-mcp/

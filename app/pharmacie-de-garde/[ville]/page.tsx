@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import {
   getPharmaciesByVille,
   getVilleBySlug,
@@ -22,7 +23,9 @@ const AD_SLOT_BOTTOM  = "2611938233";   // Après le FAQ
 
 const SITE_URL = "https://pharmacies-de-garde.net";
 
-export const dynamic = "force-dynamic";
+// ISR : les villes non pré-rendues au build sont générées à la première visite
+// puis servies depuis le cache pendant 1 h.
+export const revalidate = 3600;
 
 interface PageProps {
   params: Promise<{ ville: string }>;
@@ -92,6 +95,10 @@ export default async function VillePage({ params }: PageProps) {
     getPharmaciesByVille(ville),
     getDepartementsByVille(ville),
   ]);
+  // Ville inconnue en base et sans aucune pharmacie : vrai 404 plutôt qu'une
+  // page vide en 200, qui rendrait indexable n'importe quel slug inventé.
+  if (!info && pharmacies.length === 0) notFound();
+
   const departementCode = (departements[0]?.slug ?? info?.departement ?? "").replace(/-/g, "");
   const departementInfo = getDepartementByCode(departementCode);
   const departementNom = departementInfo?.nom ?? departements[0]?.nom ?? departementCode;

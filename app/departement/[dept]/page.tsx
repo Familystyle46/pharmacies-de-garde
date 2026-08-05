@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import {
   getVillesByDepartement,
   getTopDepartementsCodes,
@@ -10,7 +11,7 @@ import { AdUnit } from "@/components/AdUnit";
 
 const AD_SLOT_DEPT = "3240080460"; // Pub page département
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 interface PageProps {
   params: Promise<{ dept: string }>;
@@ -48,9 +49,12 @@ export async function generateStaticParams() {
 export default async function DepartementPage({ params }: PageProps) {
   const { dept } = await params;
   const departement = getDepartementByCode(dept);
-  const villes = await getVillesByDepartement(dept);
 
-  const nomDept = departement?.nom ?? dept;
+  // Code département hors liste officielle (ex. /departement/99) : vrai 404.
+  if (!departement) notFound();
+
+  const villes = await getVillesByDepartement(dept);
+  const nomDept = departement.nom;
 
   const breadcrumbItems = [
     { name: "Accueil", href: "/" },

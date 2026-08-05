@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import {
   getPharmacieBySlug,
   getPharmaciesByVille,
@@ -49,15 +50,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const p = await getPharmacieBySlug(ville, segment);
-  const nom = p?.nom ?? segment.replace(/-/g, " ");
-  const title = `${nom} - Pharmacie de Garde à ${villeNom} | Horaires & Contact`;
-  const description = `Pharmacie ${nom} située ${p?.adresse ?? ""}, ${villeNom}. Téléphone, horaires d'ouverture et itinéraire pour la pharmacie de garde.`;
+
+  // Segment inconnu : la page renverra un 404. Ne pas fabriquer de titre à
+  // partir de l'URL, sinon n'importe quel segment devient une page indexable
+  // au titre arbitraire.
+  if (!p) {
+    return { title: "Pharmacie introuvable", robots: { index: false, follow: false } };
+  }
+
+  const title = `${p.nom} - Pharmacie de Garde à ${villeNom} | Horaires & Contact`;
+  const description = `Pharmacie ${p.nom} située ${p.adresse ?? ""}, ${villeNom}. Téléphone, horaires d'ouverture et itinéraire pour la pharmacie de garde.`;
   return {
     title,
     description,
     openGraph: { title, description },
     alternates: {
-      canonical: `${SITE_URL}/pharmacie-de-garde/${ville}/${segment}`,
+      // Canonical construit depuis le nom résolu, pas depuis le segment demandé :
+      // toute variante d'URL pointe ainsi vers l'unique forme de référence.
+      canonical: `${SITE_URL}/pharmacie-de-garde/${ville}/${getPharmacieSlug(p.nom)}`,
     },
   };
 }
@@ -205,18 +215,9 @@ export default async function VilleSegmentPage({ params }: PageProps) {
     { name: p?.nom ?? segment, href: undefined },
   ];
 
-  if (!p) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <p className="text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-4">
-          Pharmacie introuvable.
-        </p>
-        <Link href={`/pharmacie-de-garde/${ville}`} className="mt-4 inline-block text-primary hover:underline">
-          ← Retour aux pharmacies de garde à {villeNom}
-        </Link>
-      </div>
-    );
-  }
+  // Vrai 404 : sans ça, tout segment inventé renvoyait un 200, créant un espace
+  // illimité de pages soft-404 (et un vecteur d'injection de texte dans le title).
+  if (!p) notFound();
 
   const hasMap = p.latitude != null && p.longitude != null;
 
