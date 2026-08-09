@@ -74,15 +74,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export async function generateStaticParams() {
   const pairs = await getAllPharmaciesSlugs();
-  const filtered = pairs
-    .filter(
-      (x) =>
-        x.ville_slug &&
-        x.pharmacie_slug &&
-        !x.ville_slug.includes("/") &&
-        !x.pharmacie_slug.includes("/")
-    )
-    .slice(0, 1000);
+  const filtered = pairs.filter(
+    (x) =>
+      x.ville_slug &&
+      x.pharmacie_slug &&
+      !x.ville_slug.includes("/") &&
+      !x.pharmacie_slug.includes("/")
+  );
   if (filtered.length === 0) {
     return [
       { ville: "paris", segment: "pharmacie-du-centre" },

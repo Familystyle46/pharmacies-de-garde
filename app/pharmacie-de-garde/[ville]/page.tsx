@@ -50,13 +50,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export async function generateStaticParams() {
   const slugs = await getAllVillesSlugs();
-  const filtered = slugs
-    .filter((slug): slug is string => {
-      if (typeof slug !== "string") return false;
-      const s = slug.trim();
-      return s.length > 0 && !s.includes("/") && s !== "undefined" && s !== "null";
-    })
-    .slice(0, 50);
+  const filtered = slugs.filter((slug): slug is string => {
+    if (typeof slug !== "string") return false;
+    const s = slug.trim();
+    return s.length > 0 && !s.includes("/") && s !== "undefined" && s !== "null";
+  });
   if (filtered.length === 0) {
     return [{ ville: "paris" }, { ville: "lyon" }, { ville: "marseille" }];
   }

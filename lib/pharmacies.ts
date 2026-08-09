@@ -328,31 +328,39 @@ export interface PharmacieSlugPair {
   pharmacie_slug: string;
 }
 
-/** Paires (ville_slug, pharmacie_slug) pour generateStaticParams, limit 1000. */
+/** Paires (ville_slug, pharmacie_slug) pour generateStaticParams — parcourt tout le catalogue. */
 export async function getAllPharmaciesSlugs(): Promise<PharmacieSlugPair[]> {
-  const { data, error } = await supabase
-    .from("pharmacies")
-    .select("ville, nom")
-    .not("ville", "is", null)
-    .not("nom", "is", null)
-    .limit(2000);
-
-  if (error) return [];
-
+  const PAGE = 1000;
+  let from = 0;
   const seen = new Set<string>();
   const pairs: PharmacieSlugPair[] = [];
-  for (const row of data ?? []) {
-    const ville = String(row.ville || "").trim();
-    const nom = String(row.nom || "").trim();
-    if (!ville || !nom) continue;
-    const vSlug = toVilleSlug(ville);
-    const pSlug = toPharmacieSlug(nom);
-    if (!vSlug || !pSlug) continue;
-    const key = `${vSlug}|${pSlug}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    pairs.push({ ville_slug: vSlug, pharmacie_slug: pSlug });
-    if (pairs.length >= 1000) break;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("pharmacies")
+      .select("ville, nom")
+      .not("ville", "is", null)
+      .not("nom", "is", null)
+      .range(from, from + PAGE - 1);
+
+    if (error) break;
+    if (!data || data.length === 0) break;
+
+    for (const row of data) {
+      const ville = String(row.ville || "").trim();
+      const nom = String(row.nom || "").trim();
+      if (!ville || !nom) continue;
+      const vSlug = toVilleSlug(ville);
+      const pSlug = toPharmacieSlug(nom);
+      if (!vSlug || !pSlug) continue;
+      const key = `${vSlug}|${pSlug}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      pairs.push({ ville_slug: vSlug, pharmacie_slug: pSlug });
+    }
+
+    if (data.length < PAGE) break;
+    from += PAGE;
   }
   return pairs;
 }
