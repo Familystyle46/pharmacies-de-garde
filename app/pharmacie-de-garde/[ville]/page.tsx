@@ -24,8 +24,10 @@ const AD_SLOT_BOTTOM  = "2611938233";   // Après le FAQ
 const SITE_URL = "https://pharmacies-de-garde.net";
 
 // ISR : les villes non pré-rendues au build sont générées à la première visite
-// puis servies depuis le cache pendant 1 h.
-export const revalidate = 3600;
+// puis servies depuis le cache pendant 24h. Les grandes villes (Paris = 850
+// pharmacies) coûtent >1s de CPU à régénérer (boucle JSON-LD par pharmacie),
+// d'où un revalidate long plutôt qu'horaire.
+export const revalidate = 86400;
 
 interface PageProps {
   params: Promise<{ ville: string }>;

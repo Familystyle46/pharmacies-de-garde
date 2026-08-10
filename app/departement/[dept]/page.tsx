@@ -11,7 +11,9 @@ import { AdUnit } from "@/components/AdUnit";
 
 const AD_SLOT_DEPT = "3240080460"; // Pub page département
 
-export const revalidate = 3600;
+// 24h : régénérer une page département coûte cher (boucle sur toutes ses
+// pharmacies pour le JSON-LD), et le contenu ne change pas d'heure en heure.
+export const revalidate = 86400;
 
 interface PageProps {
   params: Promise<{ dept: string }>;
