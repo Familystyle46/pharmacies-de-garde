@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Fragment } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -22,6 +23,11 @@ const AD_SLOT_IN_LIST = "3925019909";   // Entre la 3e et 4e pharmacie
 const AD_SLOT_BOTTOM  = "2611938233";   // Après le FAQ
 
 const SITE_URL = "https://pharmacies-de-garde.net";
+
+// Nombre de pharmacies rendues dans le HTML d'une page ville.
+// Au-delà, le poids de la page explose sans bénéfice : les fiches restent
+// accessibles individuellement et sont toutes présentes dans le sitemap.
+const MAX_PHARMACIES_AFFICHEES = 24;
 
 // ISR : les villes non pré-rendues au build sont générées à la première visite
 // puis servies depuis le cache pendant 24h. Les grandes villes (Paris = 850
@@ -105,7 +111,18 @@ export default async function VillePage({ params }: PageProps) {
   const villesProches = await getVillesProches(departementCode, ville);
 
   const villeNom = info?.nom ?? ville.replace(/-/g, " ");
-  const hasMap = pharmacies.length > 0 && pharmacies.some((p) => p.latitude && p.longitude);
+
+  // Seules les premières pharmacies sont rendues dans la page. Sans ce plafond,
+  // Paris (850 officines) produisait 6,1 Mo de HTML : chaque pharmacie était
+  // sérialisée trois fois (JSON-LD, carte, et props du composant client MapView).
+  // Google a cessé d'indexer ces pages ("crawled, currently not indexed").
+  // `pharmacies.length` reste la source du compte total affiché.
+  const pharmaciesAffichees = pharmacies.slice(0, MAX_PHARMACIES_AFFICHEES);
+  const pharmaciesMasquees = pharmacies.length - pharmaciesAffichees.length;
+
+  const hasMap =
+    pharmaciesAffichees.length > 0 &&
+    pharmaciesAffichees.some((p) => p.latitude && p.longitude);
 
   const breadcrumbItems = [
     { name: "Accueil", href: "/" },
@@ -125,14 +142,17 @@ export default async function VillePage({ params }: PageProps) {
     ],
   };
 
+  // Le JSON-LD ne décrit que les pharmacies réellement présentes dans la page :
+  // numberOfItems doit correspondre à itemListElement, sinon le balisage est
+  // incohérent avec le contenu visible.
   const pharmaciesSchema =
-    pharmacies.length > 0
+    pharmaciesAffichees.length > 0
       ? {
           "@context": "https://schema.org",
           "@type": "ItemList",
           name: `Pharmacies de garde à ${villeNom}`,
-          numberOfItems: pharmacies.length,
-          itemListElement: pharmacies.map((p, i) => pharmacieToJsonLd(p, i)),
+          numberOfItems: pharmaciesAffichees.length,
+          itemListElement: pharmaciesAffichees.map((p, i) => pharmacieToJsonLd(p, i)),
         }
       : null;
 
@@ -237,28 +257,37 @@ export default async function VillePage({ params }: PageProps) {
         <div className="lg:flex lg:gap-8">
           {/* Colonne gauche : liste (60% desktop) */}
           <div className="lg:w-[60%] lg:flex-shrink-0">
-            {pharmacies.length > 0 ? (
+            {pharmaciesAffichees.length > 0 ? (
               <div className="space-y-4">
-                {pharmacies.map((p, index) => (
-                  <>
+                {pharmaciesAffichees.map((p, index) => (
+                  // La key doit porter sur l'élément racine du map, pas sur un
+                  // enfant : sur le fragment, elle était ignorée par React.
+                  <Fragment key={p.id}>
                     <PharmacieCard
-                      key={p.id}
                       pharmacie={p}
                       villeSlug={ville}
                       pharmacieSlug={getPharmacieSlug(p.nom)}
                     />
                     {/* Pub après la 3e pharmacie, si liste > 4 */}
-                    {index === 2 && pharmacies.length > 4 && (
+                    {index === 2 && pharmaciesAffichees.length > 4 && (
                       <AdUnit
-                        key="ad-in-list"
                         slot={AD_SLOT_IN_LIST}
                         format="rectangle"
                         className="my-2"
                         style={{ minHeight: 250 }}
                       />
                     )}
-                  </>
+                  </Fragment>
                 ))}
+
+                {pharmaciesMasquees > 0 && (
+                  <p className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
+                    {pharmaciesAffichees.length} pharmacies affichées sur les{" "}
+                    <strong>{pharmacies.length}</strong> recensées à {villeNom}.
+                    En cas d&apos;urgence, composez le <strong>3237</strong> pour
+                    être orienté vers celle qui est de garde maintenant.
+                  </p>
+                )}
               </div>
             ) : (
               <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-amber-800">
@@ -271,7 +300,7 @@ export default async function VillePage({ params }: PageProps) {
           {hasMap && (
             <div className="mt-8 lg:mt-0 lg:w-[40%] lg:flex-shrink-0 lg:sticky lg:top-24">
               <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-200">
-                <MapView pharmacies={pharmacies} />
+                <MapView pharmacies={pharmaciesAffichees} />
               </div>
             </div>
           )}
