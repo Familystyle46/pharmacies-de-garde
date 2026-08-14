@@ -1,0 +1,35 @@
+# Pharmacies de Garde
+
+> Annuaire gratuit des pharmacies de garde en France : recherche par ville,
+> département ou région, avec adresses, téléphones et horaires d'ouverture.
+> 19 129 pharmacies référencées dans 7 363 communes et 98 départements.
+
+pharmacies-de-garde.net aide les utilisateurs à trouver rapidement une
+pharmacie ouverte la nuit, le dimanche ou un jour férié, sans passer par un
+appel téléphonique. Le site est un annuaire indépendant, sans lien avec les
+autorités de santé ; en cas d'urgence pharmaceutique, le numéro national à
+composer reste le 3237 (service payant, 0,35 € TTC/min), qui reste la
+source la plus à jour en cas de changement de dernière minute dans le
+planning de garde.
+
+## Pages principales
+
+- [Accueil](https://pharmacies-de-garde.net/): recherche par ville ou code postal
+- [Le 3237](https://pharmacies-de-garde.net/3237-pharmacie-de-garde): fonctionnement, tarif et alternatives au numéro national
+- [Pharmacie de garde aujourd'hui](https://pharmacies-de-garde.net/pharmacie-de-garde-aujourd-hui): pharmacies de garde du jour
+- [Pharmacie de garde de nuit](https://pharmacies-de-garde.net/pharmacie-de-garde-nuit): pharmacies ouvertes la nuit
+- [Pharmacie ouverte le dimanche](https://pharmacies-de-garde.net/pharmacie-ouverte-dimanche): pharmacies de garde du dimanche
+- [Jours fériés](https://pharmacies-de-garde.net/jours-feries): calendrier des jours fériés français et pharmacies de garde associées
+
+## Structure des données
+
+- `/pharmacie-de-garde/{ville}` — liste des pharmacies de garde d'une commune
+- `/pharmacie-de-garde/{ville}/{pharmacie}` — fiche d'une pharmacie (adresse, téléphone, horaires)
+- `/departement/{code}` — pharmacies de garde par département
+- `/region/{region}` — pharmacies de garde par région
+- [Sitemap](https://pharmacies-de-garde.net/sitemap.xml): liste exhaustive des URLs indexables
+
+## À propos
+
+Référencement gratuit pour les pharmacies. Les informations peuvent être
+corrigées sur simple demande : contact@pharmacies-de-garde.net
