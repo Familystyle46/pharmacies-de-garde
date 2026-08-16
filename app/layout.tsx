@@ -110,15 +110,18 @@ export default function RootLayout({
                 </ul>
               </div>
               <div>
-                <h3 className="font-bold text-white mb-4">Informations</h3>
-                <p className="text-sm text-gray-400 leading-relaxed">
-                  Service d&apos;information privé. Distinct des services officiels de l&apos;État et de l&apos;Ordre des Pharmaciens.
-                </p>
+                <h3 className="font-bold text-white mb-4">À propos</h3>
+                <ul className="space-y-2 text-sm">
+                  <li><Link href="/a-propos" className="text-gray-400 hover:text-white transition-colors">Qui sommes-nous&nbsp;?</Link></li>
+                  <li><Link href="/sources" className="text-gray-400 hover:text-white transition-colors">Sources &amp; méthodologie</Link></li>
+                  <li><Link href="/mentions-legales" className="text-gray-400 hover:text-white transition-colors">Mentions légales</Link></li>
+                  <li><Link href="/confidentialite" className="text-gray-400 hover:text-white transition-colors">Confidentialité</Link></li>
+                </ul>
               </div>
               <div>
-                <h3 className="font-bold text-white mb-4">Mentions légales</h3>
+                <h3 className="font-bold text-white mb-4">Informations</h3>
                 <p className="text-sm text-gray-400 leading-relaxed">
-                  Données à titre indicatif. Vérifiez les horaires auprès de la pharmacie ou du 3237.
+                  Service d&apos;information privé et indépendant, distinct des services officiels de l&apos;État et de l&apos;Ordre des Pharmaciens. Données à titre indicatif&nbsp;: vérifiez auprès de la pharmacie ou du 3237.
                 </p>
               </div>
             </div>

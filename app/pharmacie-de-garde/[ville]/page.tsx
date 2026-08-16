@@ -9,6 +9,7 @@ import {
   getAllVillesSlugs,
   getVillesProches,
   getPharmacieSlug,
+  MIN_PHARMACIES_INDEX,
 } from "@/lib/pharmacies";
 import { getDepartementByCode } from "@/lib/departements";
 import type { Pharmacie } from "@/lib/pharmacies";
@@ -17,6 +18,7 @@ import { MapView } from "@/components/MapView";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { VillesProches } from "@/components/VillesProches";
 import { AdUnit } from "@/components/AdUnit";
+import { DerniereMaj } from "@/components/DerniereMaj";
 
 // Slots AdSense — à remplacer par tes vrais IDs une fois le compte approuvé
 const AD_SLOT_IN_LIST = "3925019909";   // Entre la 3e et 4e pharmacie
@@ -41,10 +43,17 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { ville } = await params;
-  const info = await getVilleBySlug(ville);
+  const [info, pharmacies] = await Promise.all([
+    getVilleBySlug(ville),
+    getPharmaciesByVille(ville),
+  ]);
   const villeNom = info?.nom ?? ville.replace(/-/g, " ");
   const title = `Pharmacie de Garde à ${villeNom} — Ouverte Nuit, Dimanche & Jours Fériés`;
   const description = `Pharmacie de garde à ${villeNom} ouverte près de chez vous — la nuit, le dimanche et les jours fériés. Adresses, téléphones et horaires mis à jour. Appelez le 3237.`;
+
+  // Contenu trop mince (0 ou 1 pharmacie) → noindex pour préserver le budget de
+  // crawl, mais follow pour laisser Google suivre les liens vers les pages fortes.
+  const noindex = pharmacies.length < MIN_PHARMACIES_INDEX;
 
   return {
     title,
@@ -53,6 +62,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: `${SITE_URL}/pharmacie-de-garde/${ville}`,
     },
+    ...(noindex && { robots: { index: false, follow: true } }),
   };
 }
 
@@ -254,6 +264,7 @@ export default async function VillePage({ params }: PageProps) {
 
       {/* Contenu principal : 60% liste | 40% carte */}
       <div className="max-w-7xl mx-auto px-4 py-8">
+        <DerniereMaj className="mb-6" />
         <div className="lg:flex lg:gap-8">
           {/* Colonne gauche : liste (60% desktop) */}
           <div className="lg:w-[60%] lg:flex-shrink-0">

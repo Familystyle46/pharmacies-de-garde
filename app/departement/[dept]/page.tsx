@@ -8,6 +8,7 @@ import {
 import { getDepartementByCode, TOP_20_DEPARTEMENTS } from "@/lib/departements";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { AdUnit } from "@/components/AdUnit";
+import { DerniereMaj } from "@/components/DerniereMaj";
 
 const AD_SLOT_DEPT = "3240080460"; // Pub page département
 
@@ -86,6 +87,7 @@ export default async function DepartementPage({ params }: PageProps) {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-10">
+        <DerniereMaj className="mb-6" />
         {villes.length > 0 ? (
           <div className="space-y-3">
             {villes.map((v) => (

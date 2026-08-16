@@ -1,5 +1,25 @@
 import { supabase } from "./supabase";
 
+/**
+ * Date de dernière mise à jour réelle des données pharmacies (dernier import OSM).
+ * Utilisée comme `lastModified` dans le sitemap : contrairement à `new Date()`,
+ * elle NE bouge PAS à chaque build. Google reçoit ainsi un signal de fraîcheur
+ * honnête et stable, au lieu de « 26 000 pages modifiées aujourd'hui » à chaque
+ * déploiement — ce qui le poussait à ignorer nos lastmod et à crawler au ralenti.
+ * ⚠️ À incrémenter à chaque réimport de données (idéalement depuis le script d'import).
+ */
+export const DATA_LAST_UPDATED = new Date(
+  process.env.DATA_LAST_UPDATED || "2026-08-01T00:00:00Z"
+);
+
+/**
+ * Seuil d'indexation : une page ville comptant STRICTEMENT MOINS de pharmacies
+ * que ce seuil est marquée `noindex` (contenu trop mince, dupliqué de la fiche
+ * pharmacie unique) et exclue du sitemap, pour concentrer le budget de crawl de
+ * Google sur les pages à valeur. Mettre à 1 pour désactiver (n'exclut plus rien).
+ */
+export const MIN_PHARMACIES_INDEX = 2;
+
 export interface Pharmacie {
   id: string;
   nom: string;
@@ -234,10 +254,43 @@ export async function getVillesProches(
 }
 
 export async function getVillesForSitemap(): Promise<{ slug: string }[]> {
-  const slugs = await getAllVillesSlugs();
-  return slugs
-    .filter((s) => s && s.trim().length > 0 && !s.includes("/"))
-    .map((slug) => ({ slug }));
+  // On compte les pharmacies PAR ville_slug (colonne DB autoritaire, celle qui
+  // sert au routage) pour exclure du sitemap les villes trop minces (voir
+  // MIN_PHARMACIES_INDEX) : elles sont noindex, autant ne pas y gâcher de budget
+  // de crawl. On ne recalcule PAS le slug depuis le nom (risque de mismatch/404).
+  const PAGE = 1000;
+  let from = 0;
+  const counts = new Map<string, number>();
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("pharmacies")
+      .select("ville_slug")
+      .not("ville_slug", "is", null)
+      .neq("ville_slug", "")
+      .range(from, from + PAGE - 1);
+
+    if (error) break;
+    if (!data || data.length === 0) break;
+
+    for (const row of data) {
+      const slug = row.ville_slug as string;
+      if (slug) counts.set(slug, (counts.get(slug) || 0) + 1);
+    }
+
+    if (data.length < PAGE) break;
+    from += PAGE;
+  }
+
+  return Array.from(counts.entries())
+    .filter(
+      ([slug, count]) =>
+        slug &&
+        slug.trim().length > 0 &&
+        !slug.includes("/") &&
+        count >= MIN_PHARMACIES_INDEX
+    )
+    .map(([slug]) => ({ slug }));
 }
 
 export interface VilleParDepartement {
